@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaEnvelope,
+  FaLock,
   FaUser,
   FaPhoneAlt,
-  FaBuilding,
 } from "react-icons/fa";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <nav
-        className="fixed top-0 w-full z-50 bg-white shadow-md transition-all duration-300 ease-in-out px-6 md:px-10"
-      >
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-white shadow-md transition-all duration-300 ease-in-out px-6 md:px-10">
         <div className="flex justify-between items-center py-4 max-w-screen-xl mx-auto">
           {/* Logo on left */}
           <img
@@ -23,11 +25,12 @@ const SignUp = () => {
 
           {/* Center Heading */}
           <h2 className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold text-[#E4002B]">
-            Client Registration Page
+            Admin Registration Page
           </h2>
         </div>
       </nav>
 
+      {/* Main Section */}
       <div className="min-h-screen flex justify-center items-center bg-white px-4 pt-28 pb-10">
         <div className="w-full max-w-sm">
           {/* Header */}
@@ -48,7 +51,7 @@ const SignUp = () => {
                 <input
                   type="text"
                   placeholder="Type name here"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B] focus:border-[#E4002B]"
                   required
                 />
               </div>
@@ -62,7 +65,7 @@ const SignUp = () => {
                 <input
                   type="email"
                   placeholder="example@gmail.com"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B] focus:border-[#E4002B]"
                   required
                 />
               </div>
@@ -76,23 +79,29 @@ const SignUp = () => {
                 <input
                   type="tel"
                   placeholder="123-456-7890"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B] focus:border-[#E4002B]"
                   required
                 />
               </div>
             </div>
 
-            {/* Organization Name */}
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium mb-1">Organization Name</label>
+              <label className="block text-sm font-medium mb-1">Password</label>
               <div className="relative">
-                <FaBuilding className="absolute left-3 top-3 text-gray-400" />
+                <FaLock className="absolute left-3 top-3 text-gray-400" />
                 <input
-                  type="text"
-                  placeholder="Organization Name"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 8 characters"
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B] focus:border-[#E4002B]"
                   required
                 />
+                <div
+                  className="absolute right-3 top-3 text-gray-500 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                </div>
               </div>
             </div>
 
@@ -105,6 +114,13 @@ const SignUp = () => {
             </button>
           </form>
 
+          {/* Footer */}
+          <p className="text-center text-gray-600 text-sm mt-6">
+            Already have an account?{" "}
+            <Link to="/signin" className="text-blue-500 hover:underline">
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </>

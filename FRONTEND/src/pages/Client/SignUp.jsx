@@ -3,15 +3,14 @@ import {
   FaEnvelope,
   FaUser,
   FaPhoneAlt,
+  FaBuilding,
 } from "react-icons/fa";
 
 const SignUp = () => {
-
   return (
     <>
-      <nav
-        className="fixed top-0 w-full z-50 bg-white shadow-md transition-all duration-300 ease-in-out px-6 md:px-10"
-      >
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-white shadow-md transition-all duration-300 ease-in-out px-6 md:px-10">
         <div className="flex justify-between items-center py-4 max-w-screen-xl mx-auto">
           {/* Logo on left */}
           <img
@@ -22,11 +21,12 @@ const SignUp = () => {
 
           {/* Center Heading */}
           <h2 className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold text-[#E4002B]">
-            Employee Registration Page
+            Client Registration Page
           </h2>
         </div>
       </nav>
 
+      {/* Form Section */}
       <div className="min-h-screen flex justify-center items-center bg-white px-4 pt-28 pb-10">
         <div className="w-full max-w-sm">
           {/* Header */}
@@ -39,9 +39,11 @@ const SignUp = () => {
 
           {/* Form */}
           <form className="space-y-5">
-            {/* Name */}
+            {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Full Name <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <FaUser className="absolute left-3 top-3 text-gray-400" />
                 <input
@@ -55,7 +57,9 @@ const SignUp = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
                 <input
@@ -69,12 +73,30 @@ const SignUp = () => {
 
             {/* Phone Number */}
             <div>
-              <label className="block text-sm font-medium mb-1">Phone Number</label>
+              <label className="block text-sm font-medium mb-1">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <FaPhoneAlt className="absolute left-3 top-3 text-gray-400" />
                 <input
                   type="tel"
                   placeholder="123-456-7890"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Organization Name */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Organization Name <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <FaBuilding className="absolute left-3 top-3 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Organization Name"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
                   required
                 />
@@ -89,7 +111,6 @@ const SignUp = () => {
               Sign Up
             </button>
           </form>
-
         </div>
       </div>
     </>

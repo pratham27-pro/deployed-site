@@ -160,6 +160,7 @@ const SignUp = () => {
     // Personal details
     const [name, setName] = useState("");
     const [contactNo, setContactNo] = useState("");
+    const [altContactNo, setAltContactNo] = useState("");
     const [email, setEmail] = useState("");
     const [dob, setDob] = useState("");
     const genderOptions = ["Male", "Female", "Other", "Prefer not to say"];
@@ -183,8 +184,7 @@ const SignUp = () => {
         "Sole Proprietorship",
         "Partnership",
         "Private Ltd",
-        "LLP",
-        "Proprietor",
+        "LLP"
     ];
     const [businessType, setBusinessType] = useState("");
     const [ownershipType, setOwnershipType] = useState("");
@@ -267,17 +267,9 @@ const SignUp = () => {
         { state: "West Bengal", start: 700001, end: 743999 },
     ];
 
-    useEffect(() => {
-        if (pincode.length === 6) {
-            const pinNum = parseInt(pincode);
-            const found = pincodeStateMap.find(
-                (item) => pinNum >= item.start && pinNum <= item.end
-            );
-            if (found) {
-                setState(found.state);
-            }
-        }
-    }, [pincode]);
+    const [panError, setPanError] = useState("");
+    const [gstError, setGstError] = useState("");
+    const [pincodeError, setPincodeError] = useState("");
 
     // Bank details
     const bankOptions = [
@@ -303,12 +295,40 @@ const SignUp = () => {
     // Submission
     const [submitting, setSubmitting] = useState(false);
 
+    // REMOVE this: Auto-fill state based on pincode
+    useEffect(() => {
+        if (pincode.length === 6) {
+            const pinNum = parseInt(pincode);
+            const found = pincodeStateMap.find(
+                (item) => pinNum >= item.start && pinNum <= item.end
+            );
+        }
+    }, [pincode]);
+
+    // REMOVE this: Validation alert for pincode-state mismatch
+    useEffect(() => {
+        if (state && pincode.length === 6) {
+            const pinNum = parseInt(pincode);
+            const found = pincodeStateMap.find(
+                (item) => item.state === state && pinNum >= item.start && pinNum <= item.end
+            );
+
+            if (!found) {
+                alert(
+                    `The entered pincode ${pincode} does not belong to ${state}. Please correct it.`
+                );
+                setPincode("");
+            }
+        }
+    }, [state]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const body = {
             name,
             contactNo,
+            altContactNo,
             email,
             dob,
             gender,
@@ -376,8 +396,11 @@ const SignUp = () => {
                         {/* Personal Details */}
                         <section className="space-y-4">
                             <h3 className="text-lg font-medium">Personal Details</h3>
+
                             <div>
-                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Name <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaUser className="absolute left-3 top-3 text-gray-400" />
                                     <input
@@ -392,14 +415,16 @@ const SignUp = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Contact No</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Contact No <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaPhoneAlt className="absolute left-3 top-3 text-gray-400" />
                                     <input
                                         type="tel"
                                         value={contactNo}
                                         onChange={(e) => setContactNo(e.target.value.replace(/\D/g, ""))}
-                                        placeholder="9876543210"
+                                        placeholder="+91 1234567890"
                                         maxLength={10}
                                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
                                         required
@@ -408,14 +433,33 @@ const SignUp = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Email</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Alternate Contact No 
+                                </label>
+                                <div className="relative">
+                                    <FaPhoneAlt className="absolute left-3 top-3 text-gray-400" />
+                                    <input
+                                        type="tel"
+                                        value={altContactNo}
+                                        onChange={(e) => setAltContactNo(e.target.value.replace(/\D/g, ""))}
+                                        placeholder="+91 1234567890"
+                                        maxLength={10}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">
+                                    Email <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
                                     <input
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="name@example.com"
+                                        placeholder="example@google.com"
                                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
                                         required
                                     />
@@ -423,7 +467,9 @@ const SignUp = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Date of Birth <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaCalendarAlt className="absolute left-3 top-3 text-gray-400" />
                                     <input
@@ -431,28 +477,41 @@ const SignUp = () => {
                                         value={dob}
                                         onChange={(e) => setDob(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <SearchableSelect
-                                label="Gender"
+                                label={
+                                    <>
+                                        Gender <span className="text-red-500">*</span>
+                                    </>
+                                }
                                 placeholder="Select gender"
                                 options={genderOptions}
                                 value={gender}
                                 onChange={setGender}
+                                required
                             />
 
                             <SearchableSelect
-                                label="Govt ID Type"
+                                label={
+                                    <>
+                                        Govt ID Type <span className="text-red-500">*</span>
+                                    </>
+                                }
                                 placeholder="Select ID type"
                                 options={idTypeOptions}
                                 value={govtIdType}
                                 onChange={setGovtIdType}
+                                required
                             />
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Govt ID Number</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Govt ID Number <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaIdCard className="absolute left-3 top-3 text-gray-400" />
                                     <input
@@ -461,6 +520,7 @@ const SignUp = () => {
                                         onChange={(e) => setGovtIdNumber(e.target.value)}
                                         placeholder="1234-5678-9102"
                                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        required
                                     />
                                 </div>
                             </div>
@@ -471,7 +531,9 @@ const SignUp = () => {
                             <h3 className="text-lg font-medium">Shop Details</h3>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Shop Name</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Shop Name <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <FaBuilding className="absolute left-3 top-3 text-gray-400" />
                                     <input
@@ -480,12 +542,17 @@ const SignUp = () => {
                                         onChange={(e) => setShopName(e.target.value)}
                                         placeholder="Shop name"
                                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <SearchableSelect
-                                label="Business Type"
+                                label={
+                                    <>
+                                        Business Type <span className="text-red-500">*</span>
+                                    </>
+                                }
                                 placeholder="Select business type"
                                 options={businessTypeOptions}
                                 value={businessType}
@@ -493,7 +560,11 @@ const SignUp = () => {
                             />
 
                             <SearchableSelect
-                                label="Ownership Type"
+                                label={
+                                    <>
+                                        Ownership Type <span className="text-red-500">*</span>
+                                    </>
+                                }
                                 placeholder="Select ownership type"
                                 options={ownershipTypeOptions}
                                 value={ownershipType}
@@ -502,36 +573,69 @@ const SignUp = () => {
 
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">GST No</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        GST No <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={gstNo}
-                                        onChange={(e) => setGstNo(e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value.toUpperCase();
+                                            setGstNo(val);
+                                            const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                                            if (val === "") setGstError("");
+                                            else if (!gstRegex.test(val))
+                                                setGstError("Invalid GST Number format (e.g., 29ABCDE1234F1Z5)");
+                                            else setGstError("");
+                                        }}
                                         placeholder="29ABCDE1234F1Z5"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 ${gstError
+                                            ? "border-red-500 focus:ring-red-500"
+                                            : "border-gray-300 focus:ring-[#E4002B]"
+                                            }`}
+                                        required
                                     />
+                                    {gstError && <p className="text-red-500 text-xs mt-1">{gstError}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">PAN Card</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        PAN Card <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={panCard}
-                                        onChange={(e) => setPanCard(e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value.toUpperCase();
+                                            setPanCard(val);
+                                            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                                            if (val === "") setPanError("");
+                                            else if (!panRegex.test(val))
+                                                setPanError("Invalid PAN Number format (e.g., ABCDE1234F)");
+                                            else setPanError("");
+                                        }}
                                         placeholder="ABCDE1234F"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 ${panError
+                                            ? "border-red-500 focus:ring-red-500"
+                                            : "border-gray-300 focus:ring-[#E4002B]"
+                                            }`}
+                                        required
                                     />
+                                    {panError && <p className="text-red-500 text-xs mt-1">{panError}</p>}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Address Line 1</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Address Line 1 <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={address1}
                                     onChange={(e) => setAddress1(e.target.value)}
                                     placeholder="45, Main Market Road"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                    required
                                 />
                             </div>
 
@@ -549,18 +653,25 @@ const SignUp = () => {
                             {/* City, State, and Pincode */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">City</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        City <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={city}
                                         onChange={(e) => setCity(e.target.value)}
                                         placeholder="New Delhi"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        required
                                     />
                                 </div>
 
                                 <SearchableSelect
-                                    label="State"
+                                    label={
+                                        <>
+                                            State <span className="text-red-500">*</span>
+                                        </>
+                                    }
                                     placeholder="Select state"
                                     options={states}
                                     value={state}
@@ -568,18 +679,41 @@ const SignUp = () => {
                                 />
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Pincode</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Pincode <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={pincode}
                                         onChange={(e) => {
-                                            const val = e.target.value.replace(/\D/g, ""); // allow only digits
+                                            const val = e.target.value.replace(/\D/g, "");
                                             setPincode(val);
+
+                                            if (state) {
+                                                const stateInfo = pincodeStateMap.find(
+                                                    (s) => s.state.toLowerCase() === state.toLowerCase()
+                                                );
+                                                if (stateInfo) {
+                                                    const pinNum = parseInt(val, 10);
+                                                    if (pinNum < stateInfo.start || pinNum > stateInfo.end)
+                                                        setPincodeError(`Pincode not valid for ${state}`);
+                                                    else setPincodeError("");
+                                                }
+                                            } else {
+                                                setPincodeError("");
+                                            }
                                         }}
                                         placeholder="110001"
                                         maxLength={6}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                        className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 ${pincodeError
+                                            ? "border-red-500 focus:ring-red-500"
+                                            : "border-gray-300 focus:ring-[#E4002B]"
+                                            }`}
+                                        required
                                     />
+                                    {pincodeError && (
+                                        <p className="text-red-500 text-xs mt-1">{pincodeError}</p>
+                                    )}
                                 </div>
                             </div>
                         </section>
@@ -589,7 +723,11 @@ const SignUp = () => {
                             <h3 className="text-lg font-medium">Bank Details</h3>
 
                             <SearchableSelect
-                                label="Bank Name"
+                                label={
+                                    <>
+                                        Bank Name <span className="text-red-500">*</span>
+                                    </>
+                                }
                                 placeholder="Select bank"
                                 options={bankOptions}
                                 value={bankName}
@@ -597,18 +735,23 @@ const SignUp = () => {
                             />
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Account Number</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Account Number <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={accountNumber}
                                     onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
                                     placeholder="123456789012"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                    required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">IFSC</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    IFSC <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={ifsc}
@@ -616,47 +759,75 @@ const SignUp = () => {
                                     placeholder="HDFC0001234"
                                     maxLength={11}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                    required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Branch Name</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Branch Name <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={branchName}
                                     onChange={(e) => setBranchName(e.target.value)}
-                                    placeholder="Jaipur Main Branch"
+                                    placeholder="Branch name"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#E4002B]"
+                                    required
                                 />
                             </div>
                         </section>
 
                         {/* File Uploads */}
                         <section className="space-y-4">
-                            <h3 className="text-lg font-medium">File Uploads</h3>
+                            <div>
+                                <h3 className="text-lg font-medium">File Uploads</h3>
+                                <p className="text-[11px] text-gray-500 mt-1">
+                                    <span className="text-red-500">*</span> Accepted formats: PNG, JPG, JPEG, PDF, DOC — less than 1 MB
+                                </p>
+                            </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FileInput
-                                    label="Govt ID Photo"
-                                    accept="image/*"
+                                    label={
+                                        <>
+                                            Govt ID Photo <span className="text-red-500">*</span>
+                                        </>
+                                    }
+                                    accept=".png,.jpg,.jpeg,.pdf,.doc"
                                     file={govtIdPhoto}
                                     setFile={setGovtIdPhoto}
                                 />
+
                                 <FileInput
-                                    label="Person Photo"
-                                    accept="image/*"
+                                    label={
+                                        <>
+                                            Person Photo <span className="text-red-500">*</span>
+                                        </>
+                                    }
+                                    accept=".png,.jpg,.jpeg,.pdf,.doc"
                                     file={personPhoto}
                                     setFile={setPersonPhoto}
                                 />
+
                                 <FileInput
-                                    label="Registration Form (PDF/Img)"
-                                    accept=".pdf,image/*"
+                                    label={
+                                        <>
+                                            Registration Form 
+                                        </>
+                                    }
+                                    accept=".png,.jpg,.jpeg,.pdf,.doc"
                                     file={registrationFormFile}
                                     setFile={setRegistrationFormFile}
                                 />
+
                                 <FileInput
-                                    label="Outlet Photo"
-                                    accept="image/*"
+                                    label={
+                                        <>
+                                            Outlet Photo <span className="text-red-500">*</span>
+                                        </>
+                                    }
+                                    accept=".png,.jpg,.jpeg,.pdf,.doc"
                                     file={outletPhoto}
                                     setFile={setOutletPhoto}
                                 />

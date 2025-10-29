@@ -15,7 +15,7 @@ const SignIn = () => {
 
           {/* Center Heading */}
           <h2 className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold text-[#E4002B]">
-            Admin Login Page
+            Employee Login Page
           </h2>
         </div>
       </nav>
@@ -26,7 +26,7 @@ const SignIn = () => {
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold">Welcome !</h1>
             <p className="text-gray-600 mt-2">
-              Signing up is quick and easy. <br />
+              Login is quick and easy. <br />
               Let's get started on something great.
             </p>
           </div>
@@ -70,13 +70,13 @@ const SignIn = () => {
               </p>
             </div>
 
-            {/* Sign In Button */}
-            <Link to="/dashboard">
+            {/* Login Button */}
+            <Link to="/employee-dashboard">
               <button
                 type="button"
                 className="w-full bg-[#E4002B] text-white py-2 rounded-lg font-medium hover:bg-[#C3002B] transition"
               >
-                Sign in
+                Login
               </button>
             </Link>
           </form>
@@ -89,26 +89,22 @@ const SignIn = () => {
           </div>
 
           {/* Social Login */}
-          <div className="flex justify-center space-x-4">
-            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
-              <FaGoogle className="text-xl text-gray-700" />
-            </button>
-            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
-              <FaMicrosoft className="text-xl text-gray-700" />
-            </button>
-            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
-              <FaPhoneAlt className="text-xl text-gray-700" />
-            </button>
-          </div>
+          <div className="flex flex-col items-center space-y-3">
+            <div className="flex justify-center space-x-4">
+              <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
+                <FaGoogle className="text-xl text-gray-700" />
+              </button>
+              <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
+                <FaMicrosoft className="text-xl text-gray-700" />
+              </button>
+              <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100">
+                <FaPhoneAlt className="text-xl text-gray-700" />
+              </button>
+            </div>
 
-          {/* Footer */}
-          <p className="text-center text-gray-600 text-sm mt-6">
-            or{" "}
-            <Link to="/signup" className="text-blue-500 hover:underline">
-              create an account
-            </Link>{" "}
-            if you don't have one yet
-          </p>
+            {/* Caption below icons */}
+            <p className="text-gray-500 text-sm">Choose one of the methods below to quickly login.</p>
+          </div>
         </div>
       </div>
     </>
