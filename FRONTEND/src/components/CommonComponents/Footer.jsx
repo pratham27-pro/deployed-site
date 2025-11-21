@@ -81,7 +81,7 @@ const Footer = () => {
                 </a>
               ))}
             </div>
-            <h3 className="font-semibold text-white text-base">
+            {/* <h3 className="font-semibold text-white text-base">
               Also Available On
             </h3>
             <div className="flex justify-center md:justify-start items-center gap-2 mt-2">
@@ -95,7 +95,7 @@ const Footer = () => {
                 alt="App Store"
                 className="h-15 w-auto cursor-pointer hover:opacity-80 transition"
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </footer>

@@ -99,7 +99,7 @@ const Navbar = () => {
           {dropdownItems.map((item) => (
             <li key={item.name}>
               <Link
-                to={item.path}
+                // to={item.path}
                 className="block px-4 py-3 text-white hover:bg-red-600/20 hover:text-red-400 transition-all rounded-lg"
               >
                 {item.name}
@@ -151,7 +151,7 @@ const Navbar = () => {
                   {dropdownItems.map((item) => (
                     <li key={item.name}>
                       <Link
-                        to={item.path}
+                        // to={item.path}
                         className="block px-4 py-3 text-white hover:bg-red-600/20 hover:text-red-400 transition-all rounded-lg"
                         onClick={() => {
                           setIsOpen(false);
