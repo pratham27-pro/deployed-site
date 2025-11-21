@@ -9,6 +9,8 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <>
@@ -22,15 +24,15 @@ const Footer = () => {
             </h2>
 
             <ul className="flex justify-center md:justify-start flex-wrap gap-3 text-gray-400 text-xs md:text-sm">
-              <li><a href="/" className="hover:text-red-500 transition">Home</a></li>
+              <li><Link to="/" className="hover:text-red-500 transition">Home</Link></li>
               <li>|</li>
-              <li><a href="/about" className="hover:text-red-500 transition">About</a></li>
+              <li><Link to="/about" className="hover:text-red-500 transition">About</Link></li>
               <li>|</li>
-              <li><a href="/services" className="hover:text-red-500 transition">Services</a></li>
+              <li><Link to="/services" className="hover:text-red-500 transition">Services</Link></li>
               <li>|</li>
-              <li><a href="/careers" className="hover:text-red-500 transition">Careers</a></li>
+              <li><Link to="/careers" className="hover:text-red-500 transition">Careers</Link></li>
               <li>|</li>
-              <li><a href="/contact" className="hover:text-red-500 transition">Contact</a></li>
+              <li><Link to="/contact" className="hover:text-red-500 transition">Contact</Link></li>
             </ul>
 
             <p className="text-gray-500 text-xs">
