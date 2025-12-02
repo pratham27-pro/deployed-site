@@ -7,7 +7,7 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
   const [status, setStatus] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const API_BASE = "https://supreme-419p.onrender.com";
+  const API_BASE = "https://srv1168036.hstgr.cloud";
 
   // ✅ Fetch Campaign details
   const fetchCampaignDetails = async () => {
@@ -64,7 +64,7 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
         toast.error(data.message || "Update failed", { theme: "dark" });
       } else {
         setCampaign(data.campaign);
-        toast.success("Status updated ✅", { theme: "dark" });
+        toast.success("Status updated", { theme: "dark" });
       }
     } catch (err) {
       console.log(err);
@@ -74,10 +74,10 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
     setSaving(false);
   };
 
-  if (!campaign) return <p className="text-center mt-10">Loading...</p>;
+  if (!campaign) return <p className="text-center mt-10 text-gray-200">Loading...</p>;
 
   return (
-    <div className="p-6">
+    <div className="bg-[#EDEDED] p-6 shadow-md rounded-xl border max-w-3xl mx-auto w-full">
       <ToastContainer />
 
       <button
@@ -89,8 +89,8 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
 
       <h2 className="text-2xl font-bold text-[#E4002B]">{campaign.name}</h2>
       <p className="text-gray-600 mt-2"><strong>Client:</strong> {campaign.client}</p>
-      <p className="text-gray-600"><strong>Region:</strong> {campaign.region}</p>
-      <p className="text-gray-600"><strong>State:</strong> {campaign.state}</p>
+      <p className="text-gray-600"><strong>Region(s):</strong> {campaign.regions.join(", ")}</p>
+      <p className="text-gray-600"><strong>State(s):</strong> {campaign.states.join(", ")}</p>
       <p className="mt-2 text-gray-700">{campaign.description}</p>
 
       <p className="mt-3 text-sm text-gray-500">
