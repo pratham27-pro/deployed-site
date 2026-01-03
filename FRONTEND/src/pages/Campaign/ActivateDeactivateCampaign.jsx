@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../../url/base";
 
 const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
   const [campaign, setCampaign] = useState(null);
@@ -12,7 +13,7 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/campaigns/${campaignId}`, {
+      const res = await fetch(`${API_URL}/admin/campaigns/${campaignId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/campaigns/${campaignId}/status`, {
+      const res = await fetch(`${API_URL}/admin/campaigns/${campaignId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

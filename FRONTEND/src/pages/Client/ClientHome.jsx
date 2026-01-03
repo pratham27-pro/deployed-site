@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaStore, FaCheckCircle, FaClipboardList, FaMoneyBillWave } from "react-icons/fa";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
+import { API_URL } from "../../url/base";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
@@ -93,21 +94,21 @@ const ClientHome = () => {
       const token = localStorage.getItem("client_token");
 
       // Fetch campaigns
-      const campaignsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/campaigns`, {
+      const campaignsRes = await fetch(`${API_URL}/client/client/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const campaignsData = await campaignsRes.json();
       setAllCampaigns(campaignsData.campaigns || []);
 
       // Fetch all budgets
-      const budgetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets`, {
+      const budgetsRes = await fetch(`${API_URL}/budgets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const budgetsData = await budgetsRes.json();
       setBudgets(budgetsData.budgets || []);
 
       // Fetch all reports
-      const reportsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/client-reports`, {
+      const reportsRes = await fetch(`${API_URL}/reports/client-reports`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const reportsData = await reportsRes.json();

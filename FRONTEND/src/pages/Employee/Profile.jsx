@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { API_URL } from "../../url/base";
 import {
   FaUser,
   FaPhoneAlt,
@@ -404,7 +405,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
+      const response = await fetch(`${API_URL}/employee/profile`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -549,7 +550,7 @@ const Profile = () => {
 
       // Step 1: Check which documents exist
       const statusResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/documents/status`,
+        `${API_URL}/employee/employee/documents/status`,
         {
           method: "GET",
           headers: {
@@ -588,7 +589,7 @@ const Profile = () => {
         if (status[hasKey]) {
           // Create blob URL for each existing image
           const imageResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/document/${type}`,
+            `${API_URL}/employee/employee/document/${type}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -867,7 +868,7 @@ const Profile = () => {
 
       console.log("Submitting profile update...");
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/profile`, {
+      const response = await fetch(`${API_URL}/employee/employee/profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

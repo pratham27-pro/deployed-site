@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+import { API_URL } from "../../url/base";
 import {
   FaEnvelope,
   FaUser,
@@ -149,7 +150,7 @@ const CreateEmployee = () => {
     setSubmitting(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/employees`, {
+      const response = await fetch(`${API_URL}/admin/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

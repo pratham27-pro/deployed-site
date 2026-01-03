@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -62,7 +63,7 @@ const SetBudget = () => {
 
             // Fetch Campaigns
             const campaignsRes = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
+                `${API_URL}/admin/campaigns`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -74,7 +75,7 @@ const SetBudget = () => {
 
             // Fetch Retailers
             const retailersRes = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
+                `${API_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -130,7 +131,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/retailer/${selectedRetailer.value}`,
+                `${API_URL}/budgets/retailer/${selectedRetailer.value}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -396,7 +397,7 @@ const SetBudget = () => {
             };
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/set-campaign-tca`,
+                `${API_URL}/budgets/set-campaign-tca`,
                 {
                     method: "POST",
                     headers: {
@@ -441,7 +442,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetId}/campaign/${campaignSubId}/tca`,
+                `${API_URL}/budgets/${budgetId}/campaign/${campaignSubId}/tca`,
                 {
                     method: "PATCH",
                     headers: {
@@ -485,7 +486,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetId}/campaign/${campaignSubId}`,
+                `${API_URL}/budgets/${budgetId}/campaign/${campaignSubId}`,
                 {
                     method: "DELETE",
                     headers: {

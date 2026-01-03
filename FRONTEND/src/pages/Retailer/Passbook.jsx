@@ -3,7 +3,7 @@ import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from 'xlsx-js-style';
-
+import { API_URL } from "../../url/base";
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
@@ -57,7 +57,7 @@ const RetailerPassbook = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/me`, {
+      const response = await fetch(`${API_URL}/retailer/retailer/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -86,7 +86,7 @@ const RetailerPassbook = () => {
   // ===============================
   const fetchAssignedCampaigns = async (token) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`, {
+      const response = await fetch(`${API_URL}/retailer/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -116,7 +116,7 @@ const RetailerPassbook = () => {
       params.append("retailerId", retailerId);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/passbook?${params.toString()}`,
+        `${API_URL}/budgets/passbook?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token || localStorage.getItem("retailer_token")}`,

@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReportDetailsModal from "./ReportDetailsModal";
 import axios from "axios";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
   control: (provided, state) => ({
@@ -80,7 +81,7 @@ const EmployeeViewReports = ({ campaign }) => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
+      const response = await fetch(`${API_URL}/employee/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -100,7 +101,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/campaigns`,
+        `${API_URL}/employee/employee/campaigns`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -125,7 +126,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
+        `${API_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -171,7 +172,7 @@ const EmployeeViewReports = ({ campaign }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/employee/${employeeInfo._id}`,
+        `${API_URL}/reports/employee/${employeeInfo._id}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -285,7 +286,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`, {
+      const res = await fetch(`${API_URL}/reports/${report._id}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });

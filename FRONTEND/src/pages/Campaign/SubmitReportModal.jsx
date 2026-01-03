@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { FiPlus, FiX } from "react-icons/fi";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -87,7 +88,7 @@ const SubmitReportModal = ({
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/retailer/${retailerId}/employee`,
+                `${API_URL}/admin/campaign/${campaignId}/retailer/${retailerId}/employee`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -125,7 +126,7 @@ const SubmitReportModal = ({
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
+                `${API_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },

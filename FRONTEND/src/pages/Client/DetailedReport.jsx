@@ -3,6 +3,7 @@ import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReportDetailsModal from "./ReportDetailsModal";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -81,7 +82,7 @@ const DetailedReport = () => {
 
     const fetchCampaigns = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/campaigns`, {
+            const res = await fetch(`${API_URL}/client/client/campaigns`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -224,7 +225,7 @@ const DetailedReport = () => {
             }
 
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/client-reports?${params.toString()}`,
+                `${API_URL}/reports/client-reports?${params.toString()}`,
                 {
                     method: "GET",
                     headers: {
@@ -320,7 +321,7 @@ const DetailedReport = () => {
 
     const handleViewDetails = async (report) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`, {
+            const res = await fetch(`${API_URL}/reports/${report._id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",

@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from 'xlsx-js-style';
 import axios from "axios";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -63,7 +64,7 @@ const EmployeePassbook = () => {
                 return;
             }
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
+            const response = await fetch(`${API_URL}/employee/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -90,7 +91,7 @@ const EmployeePassbook = () => {
     const fetchEmployeeRetailerMappings = async (employeeId, token) => {
         try {
             // Fetch all active campaigns
-            const campaignsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
+            const campaignsRes = await axios.get(`${API_URL}/admin/campaigns`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -104,7 +105,7 @@ const EmployeePassbook = () => {
             for (const campaign of activeCampaigns) {
                 try {
                     const mappingRes = await axios.get(
-                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaign._id}/employee-retailer-mapping`,
+                        `${API_URL}/admin/campaign/${campaign._id}/employee-retailer-mapping`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }
@@ -173,7 +174,7 @@ const EmployeePassbook = () => {
             params.append("retailerId", selectedRetailer.value);
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/passbook?${params.toString()}`,
+                `${API_URL}/budgets/passbook?${params.toString()}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

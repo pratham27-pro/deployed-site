@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { FaCheck, FaTimes } from "react-icons/fa"
 import axios from "axios"
 import CampaignDetails from "./CampaignDetails"
+import { API_URL } from "../../url/base";
 
 const RetailerCampaigns = () => {
   const [campaigns, setCampaigns] = useState([])
@@ -25,7 +26,7 @@ const RetailerCampaigns = () => {
       }
 
       // Build URL with optional status filter
-      let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`
+      let url = `${API_URL}/retailer/campaigns`
       if (filter !== 'all') {
         url += `?status=${filter}`
       }
@@ -55,7 +56,7 @@ const RetailerCampaigns = () => {
       const token = localStorage.getItem("retailer_token")
       
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns/${campaignId}/status`,
+        `${API_URL}/retailer/campaigns/${campaignId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       )

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../../url/base";
 
 const CampaignHome = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -11,7 +12,7 @@ const CampaignHome = () => {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
+        `${API_URL}/admin/campaigns`,
         {
           method: "GET",
           headers: {

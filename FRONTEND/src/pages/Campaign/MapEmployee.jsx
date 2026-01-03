@@ -3,6 +3,7 @@ import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from 'xlsx-js-style';
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -67,7 +68,7 @@ const MapEmployee = () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
+                `${API_URL}/admin/campaigns`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -111,7 +112,7 @@ const MapEmployee = () => {
             retailers.map(async (retailer) => {
                 try {
                     const res = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/retailer/${retailer._id}/employee`,
+                        `${API_URL}/admin/campaign/${campaignId}/retailer/${retailer._id}/employee`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }
@@ -150,7 +151,7 @@ const MapEmployee = () => {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
+            `${API_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -292,7 +293,7 @@ const MapEmployee = () => {
 
             // 1️⃣ Fetch retailers + employees
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${selected.value}/retailers-with-employees`,
+                `${API_URL}/admin/campaign/${selected.value}/retailers-with-employees`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -392,7 +393,7 @@ const MapEmployee = () => {
         for (const retailerId of selectedRetailers) {
             try {
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/assign-employee-to-retailer`,
+                    `${API_URL}/admin/campaign/assign-employee-to-retailer`,
                     {
                         method: "POST",
                         headers: {

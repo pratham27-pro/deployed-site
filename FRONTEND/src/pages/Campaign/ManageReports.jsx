@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubmitReportModal from "./SubmitReportModal";
 import ReportDetailsModal from "./ReportDetailsModal";
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -84,7 +85,7 @@ const ManageReports = () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
+                `${API_URL}/admin/campaigns`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -124,7 +125,7 @@ const ManageReports = () => {
         try {
             const token = localStorage.getItem("token");
             const campaignRes = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`,
+                `${API_URL}/admin/campaigns/${campaignId}`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -155,7 +156,7 @@ const ManageReports = () => {
             }
 
             const retailersRes = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
+                `${API_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -194,7 +195,7 @@ const ManageReports = () => {
 
             if (assignedEmployeeIds.length > 0) {
                 const employeesRes = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/employees`,
+                    `${API_URL}/admin/employees`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
                     }
@@ -281,7 +282,7 @@ const ManageReports = () => {
             }
 
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/all?${params.toString()}`,
+                `${API_URL}/reports/all?${params.toString()}`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -336,7 +337,7 @@ const ManageReports = () => {
             const token = localStorage.getItem("token");
 
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/create`,
+                `${API_URL}/reports/create`,
                 {
                     method: "POST",
                     headers: {
@@ -420,7 +421,7 @@ const ManageReports = () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`,
+                `${API_URL}/reports/${report._id}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -449,7 +450,7 @@ const ManageReports = () => {
             console.log("Updating report:", reportId);
 
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/update/${reportId}`,
+                `${API_URL}/reports/update/${reportId}`,
                 {
                     method: "PUT",
                     headers: {
@@ -493,7 +494,7 @@ const ManageReports = () => {
             const token = localStorage.getItem("token");
 
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/delete/${reportId}`,
+                `${API_URL}/reports/delete/${reportId}`,
                 {
                     method: "DELETE",
                     headers: {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { FiPlus, FiX } from "react-icons/fi";
 import axios from "axios";
+import { API_URL } from "../../url/base";
 
 const reportTypes = [
   { value: "Window Display", label: "Window Display" },
@@ -128,7 +129,7 @@ const SubmitReport = ({ campaign }) => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
+      const response = await fetch(`${API_URL}/employee/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -154,7 +155,7 @@ const SubmitReport = ({ campaign }) => {
   const fetchCampaignId = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/campaigns`, {
+      const response = await axios.get(`${API_URL}/employee/employee/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -179,7 +180,7 @@ const SubmitReport = ({ campaign }) => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
+          `${API_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -216,7 +217,7 @@ const SubmitReport = ({ campaign }) => {
     const fetchSchedules = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/schedules/all`, {
+        const res = await axios.get(`${API_URL}/employee/schedules/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -424,7 +425,7 @@ const SubmitReport = ({ campaign }) => {
       }
 
       const token = localStorage.getItem("token");
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/create`, formData, {
+      const response = await axios.post(`${API_URL}/reports/create`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_URL } from "../../url/base";
 import {
   FaEnvelope,
   FaLock,
@@ -24,7 +25,7 @@ const ClientSignIn = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/admin/login`,
+        `${API_URL}/client/admin/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

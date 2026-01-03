@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaPen } from "react-icons/fa";
+import { API_URL } from "../../url/base";
 
 const UpdateCampaign = ({ onEdit }) => {
   const [campaigns, setCampaigns] = useState([]);
@@ -11,7 +12,7 @@ const UpdateCampaign = ({ onEdit }) => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
+      const res = await fetch(`${API_URL}/admin/campaigns`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

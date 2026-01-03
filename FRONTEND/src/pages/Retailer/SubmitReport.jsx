@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import Select from "react-select"
 import { FiPlus, FiX } from "react-icons/fi"
 import axios from "axios"
+import { API_URL } from "../../url/base";
 
 const reportTypes = [
   { value: "Window Display", label: "Window Display" },
@@ -100,7 +101,7 @@ const SubmitReport = ({ campaign }) => {
         return
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/me`, {
+      const response = await fetch(`${API_URL}/retailer/retailer/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -128,7 +129,7 @@ const SubmitReport = ({ campaign }) => {
     try {
       const token = localStorage.getItem("retailer_token")
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`,
+        `${API_URL}/retailer/campaigns`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -273,7 +274,7 @@ const SubmitReport = ({ campaign }) => {
       }
 
       const token = localStorage.getItem("retailer_token")
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/create`, formData, {
+      const response = await axios.post(`${API_URL}/reports/create`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

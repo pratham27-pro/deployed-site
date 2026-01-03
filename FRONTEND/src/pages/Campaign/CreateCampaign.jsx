@@ -3,6 +3,7 @@ import Select from "react-select";
 import { FaUser, FaBuilding } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../../url/base";
 
 const regionStates = {
   North: [
@@ -185,7 +186,7 @@ const CreateCampaign = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
+      const response = await fetch(`${API_URL}/admin/campaigns`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

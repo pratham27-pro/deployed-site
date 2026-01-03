@@ -3,6 +3,7 @@ import Select from "react-select";
 import { FaArrowLeft } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../../url/base";
 
 // Region & States Mapping
 const regionStates = {
@@ -72,7 +73,7 @@ const EditCampaign = ({ campaignId, onBack }) => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`, {
+        const res = await fetch(`${API_URL}/admin/campaigns/${campaignId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -115,7 +116,7 @@ const EditCampaign = ({ campaignId, onBack }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`, {
+      const res = await fetch(`${API_URL}/admin/campaigns/${campaignId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

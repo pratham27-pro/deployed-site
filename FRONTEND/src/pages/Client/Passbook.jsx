@@ -3,7 +3,7 @@ import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from 'xlsx-js-style';
-
+import { API_URL } from "../../url/base";
 
 const customSelectStyles = {
   control: (provided, state) => ({
@@ -94,7 +94,7 @@ const ClientPassbook = () => {
     try {
       // Fetch campaigns
       const campaignsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/campaigns`,
+        `${API_URL}/client/client/campaigns`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -103,7 +103,7 @@ const ClientPassbook = () => {
       setAllCampaigns(campaignsData.campaigns || []);
 
       // Fetch all budgets (for passbook data)
-      const budgetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets`, {
+      const budgetsRes = await fetch(`${API_URL}/budgets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const budgetsData = await budgetsRes.json();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { API_URL } from "../../url/base";
 import Info from "./Info";
 import Gratification from "./Gratification";
 import Report from "./RetailerViewReports";
@@ -30,7 +30,7 @@ const CampaignDetails = ({ campaign, onBack }) => {
         }
 
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns/${campaign._id}/status`,
+          `${API_URL}/retailer/campaigns/${campaign._id}/status`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }

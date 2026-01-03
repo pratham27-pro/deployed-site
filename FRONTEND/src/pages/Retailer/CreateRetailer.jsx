@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { API_URL } from "../../url/base";
 import {
     FaUser,
     FaPhoneAlt,
@@ -277,7 +278,7 @@ const CreateRetailer = () => {
 
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
+                `${API_URL}/admin/retailers`,
                 {
                     method: "POST",
                     headers: {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import CampaignDetails from "./CampaignDetails";
+import { API_URL } from "../../url/base";
 
 const EmployeeCampaign = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -31,7 +32,7 @@ const EmployeeCampaign = () => {
         return;
       }
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/campaigns`, {
+      const response = await axios.get(`${API_URL}/employee/employee/campaigns`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -73,7 +74,7 @@ const EmployeeCampaign = () => {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/campaigns/${campaignId}/status`,
+        `${API_URL}/employee/employee/campaigns/${campaignId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

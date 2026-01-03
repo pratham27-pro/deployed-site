@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReportDetailsModal from "./ReportDetailsModal";
+import { API_URL } from "../../url/base";
 
 const RetailerViewReports = ({ campaign }) => {
   // Date Range Filter
@@ -41,7 +42,7 @@ const RetailerViewReports = ({ campaign }) => {
   const fetchRetailerInfo = async () => {
     try {
       const token = localStorage.getItem("retailer_token");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/me`, {
+      const response = await fetch(`${API_URL}/retailer/retailer/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -54,7 +55,7 @@ const RetailerViewReports = ({ campaign }) => {
   const fetchCampaignId = async () => {
     try {
       const token = localStorage.getItem("retailer_token");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`, {
+      const response = await fetch(`${API_URL}/retailer/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -87,7 +88,7 @@ const RetailerViewReports = ({ campaign }) => {
       const token = localStorage.getItem("retailer_token");
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/retailer/${retailerInfo._id}`,
+        `${API_URL}/reports/retailer/${retailerInfo._id}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -191,7 +192,7 @@ const RetailerViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("retailer_token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`, {
+      const res = await fetch(`${API_URL}/reports/${report._id}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
