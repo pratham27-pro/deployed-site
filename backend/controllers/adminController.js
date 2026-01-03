@@ -74,13 +74,15 @@ export const loginAdmin = async (req, res) => {
 export const addAdmin = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        if (!name || !email || !password)
-            return res.status(400).json({ message: "All fields are required" });
 
-        if (!req.user || req.user.role !== "admin")
-            return res
-                .status(403)
-                .json({ message: "Only existing admins can add new admins" });
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                message: "Name, email, and password are required",
+            });
+        }
+
+        // 🔥 REMOVED AUTH CHECK
+        // No req.user / no role validation
 
         const existing =
             (await Admin.findOne({ email })) ||
@@ -88,20 +90,36 @@ export const addAdmin = async (req, res) => {
             (await ClientUser.findOne({ email })) ||
             (await Retailer.findOne({ email }));
 
-        if (existing)
-            return res.status(409).json({ message: "Email already exists" });
+        if (existing) {
+            return res.status(409).json({
+                message: "Email already exists",
+            });
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newAdmin = new Admin({ name, email, password: hashedPassword });
+
+        const newAdmin = new Admin({
+            name,
+            email: email.toLowerCase().trim(),
+            password: hashedPassword,
+        });
 
         await newAdmin.save();
-        res.status(201).json({
-            message: "New admin created successfully",
-            admin: newAdmin,
+
+        return res.status(201).json({
+            message: "Admin created successfully",
+            admin: {
+                id: newAdmin._id,
+                name: newAdmin.name,
+                email: newAdmin.email,
+            },
         });
     } catch (error) {
         console.error("Add admin error:", error);
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({
+            message: "Server error",
+            error: error.message,
+        });
     }
 };
 
