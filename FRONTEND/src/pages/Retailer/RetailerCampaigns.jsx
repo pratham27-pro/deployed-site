@@ -11,8 +11,6 @@ const RetailerCampaigns = () => {
   const [filter, setFilter] = useState('all')
   const [selectedCampaign, setSelectedCampaign] = useState(null)
 
-  const API_BASE_URL = "https://conceptpromotions.in/api/retailer"
-
   // Fetch campaigns from backend
   const fetchCampaigns = async () => {
     try {
@@ -27,7 +25,7 @@ const RetailerCampaigns = () => {
       }
 
       // Build URL with optional status filter
-      let url = `${API_BASE_URL}/campaigns`
+      let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`
       if (filter !== 'all') {
         url += `?status=${filter}`
       }
@@ -57,7 +55,7 @@ const RetailerCampaigns = () => {
       const token = localStorage.getItem("retailer_token")
       
       await axios.put(
-        `${API_BASE_URL}/campaigns/${campaignId}/status`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns/${campaignId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       )

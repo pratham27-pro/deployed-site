@@ -25,7 +25,7 @@ const EditJob = ({ jobId, onBack }) => {  // ✅ receive jobId and onBack as pro
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          `https://conceptpromotions.in/api/admin/career/jobs/${jobId}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/career/jobs/${jobId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -81,7 +81,7 @@ const EditJob = ({ jobId, onBack }) => {  // ✅ receive jobId and onBack as pro
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `https://conceptpromotions.in/api/admin/jobs/${jobId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/jobs/${jobId}`,
         {
           method: "PUT",
           headers: {

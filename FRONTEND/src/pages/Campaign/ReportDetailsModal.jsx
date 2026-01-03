@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "react-toastify";
 
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -76,7 +79,6 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
     const [billCopies, setBillCopies] = useState([]);
     const [files, setFiles] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [removedImageIndices, setRemovedImageIndices] = useState([]);
     const [removedBillIndices, setRemovedBillIndices] = useState([]);
     const [removedFileIndices, setRemovedFileIndices] = useState([]);
@@ -95,6 +97,328 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
             return "N/A";
         }
     };
+
+    const bufferToBase64 = (buffer, contentType) => {
+        if (!buffer || !buffer.data) return null;
+
+        try {
+            if (buffer.type === "Buffer" && Array.isArray(buffer.data)) {
+                const base64 = btoa(
+                    buffer.data.reduce(
+                        (data, byte) => data + String.fromCharCode(byte),
+                        ""
+                    )
+                );
+                return `data:${contentType || "image/jpeg"};base64,${base64}`;
+            }
+            return null;
+        } catch (error) {
+            console.error("Error converting buffer to base64:", error);
+            return null;
+        }
+    };
+
+    // ✅ DOWNLOAD PDF FUNCTION WITH VISIT DETAILS
+    const handleDownloadPDF = () => {
+        try {
+            const doc = new jsPDF();
+            let yPosition = 20;
+
+            // Title
+            doc.setFontSize(18);
+            doc.setTextColor(228, 0, 43);
+            doc.text("REPORT DETAILS", 105, yPosition, { align: "center" });
+            yPosition += 15;
+
+            // Basic Information
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text("Basic Information", 15, yPosition);
+            yPosition += 8;
+
+            autoTable(doc, {
+                startY: yPosition,
+                head: [['Field', 'Value']],
+                body: [
+                    ['Report Type', report.reportType || 'N/A'],
+                    ['Frequency', report.frequency || 'N/A'],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [228, 0, 43] },
+                margin: { left: 15, right: 15 },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 10;
+
+            // Campaign Information
+            doc.setFontSize(14);
+            doc.text("Campaign Information", 15, yPosition);
+            yPosition += 8;
+
+            autoTable(doc, {
+                startY: yPosition,
+                head: [['Field', 'Value']],
+                body: [
+                    ['Campaign Name', report.campaignId?.name || 'N/A'],
+                    ['Campaign Type', report.campaignId?.type || 'N/A'],
+                    ['Client', report.campaignId?.client || 'N/A'],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [228, 0, 43] },
+                margin: { left: 15, right: 15 },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 10;
+
+            // Retailer Information
+            doc.setFontSize(14);
+            doc.text("Retailer Information", 15, yPosition);
+            yPosition += 8;
+
+            autoTable(doc, {
+                startY: yPosition,
+                head: [['Field', 'Value']],
+                body: [
+                    ['Retailer Name', report.retailer?.retailerName || 'N/A'],
+                    ['Outlet Code', report.retailer?.outletCode || 'N/A'],
+                    ['Outlet Name', report.retailer?.outletName || 'N/A'],
+                    ['Contact', report.retailer?.retailerId?.contactNo || 'N/A'],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [228, 0, 43] },
+                margin: { left: 15, right: 15 },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 10;
+
+            // Employee Information
+            if (report.employee?.employeeName) {
+                doc.setFontSize(14);
+                doc.text("Employee Information", 15, yPosition);
+                yPosition += 8;
+
+                autoTable(doc, {
+                    startY: yPosition,
+                    head: [['Field', 'Value']],
+                    body: [
+                        ['Employee Name', report.employee?.employeeName || 'N/A'],
+                        ['Employee Code', report.employee?.employeeCode || 'N/A'],
+                        ['Phone', report.employee?.employeeId?.phone || 'N/A'],
+                    ],
+                    theme: 'grid',
+                    headStyles: { fillColor: [228, 0, 43] },
+                    margin: { left: 15, right: 15 },
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 10;
+            }
+
+            // ✅ VISIT DETAILS (NEW SECTION)
+            if (report.submittedBy?.role === "Employee") {
+                doc.setFontSize(14);
+                doc.text("Visit Details", 15, yPosition);
+                yPosition += 8;
+
+                const visitData = [];
+
+                if (report.typeOfVisit) {
+                    visitData.push(['Type of Visit', report.typeOfVisit || 'N/A']);
+                }
+
+                if (report.attendedVisit) {
+                    const attendanceStatus = report.attendedVisit === 'yes' ? 'Attended' : 'Not Attended';
+                    visitData.push(['Attendance Status', attendanceStatus]);
+                }
+
+                if (report.attendedVisit === 'no' && report.reasonForNonAttendance) {
+                    if (report.reasonForNonAttendance.reason) {
+                        visitData.push(['Reason for Non-Attendance', report.reasonForNonAttendance.reason]);
+                    }
+                    if (report.reasonForNonAttendance.reason === 'others' && report.reasonForNonAttendance.otherReason) {
+                        visitData.push(['Additional Details', report.reasonForNonAttendance.otherReason]);
+                    }
+                }
+
+                if (visitData.length > 0) {
+                    autoTable(doc, {
+                        startY: yPosition,
+                        head: [['Field', 'Value']],
+                        body: visitData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [228, 0, 43] },
+                        margin: { left: 15, right: 15 },
+                    });
+
+                    yPosition = doc.lastAutoTable.finalY + 10;
+                }
+            }
+
+            // Product/Stock Information
+            if (report.reportType === "Stock" &&
+                (report.brand || report.product || report.sku || report.stockType)) {
+
+                doc.setFontSize(14);
+                doc.text("Product/Stock Information", 15, yPosition);
+                yPosition += 8;
+
+                const stockData = [];
+                if (report.stockType) stockData.push(['Stock Type', report.stockType]);
+                if (report.brand) stockData.push(['Brand', report.brand]);
+                if (report.product) stockData.push(['Product', report.product]);
+                if (report.sku) stockData.push(['SKU', report.sku]);
+                if (report.productType) stockData.push(['Product Type', report.productType]);
+                if (report.quantity) stockData.push(['Quantity', report.quantity]);
+
+                autoTable(doc, {
+                    startY: yPosition,
+                    head: [['Field', 'Value']],
+                    body: stockData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [228, 0, 43] },
+                    margin: { left: 15, right: 15 },
+                });
+
+                yPosition = doc.lastAutoTable.finalY + 10;
+            }
+
+            // Date Information
+            doc.setFontSize(14);
+            doc.text("Date Information", 15, yPosition);
+            yPosition += 8;
+
+            autoTable(doc, {
+                startY: yPosition,
+                head: [['Field', 'Value']],
+                body: [
+                    ['Submitted On', formatDate(report.dateOfSubmission || report.createdAt)],
+                    ['Submitted By', report.submittedBy?.role || 'N/A'],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [228, 0, 43] },
+                margin: { left: 15, right: 15 },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 10;
+
+            // Remarks
+            if (report.remarks) {
+                doc.setFontSize(14);
+                doc.text("Remarks", 15, yPosition);
+                yPosition += 8;
+
+                doc.setFontSize(11);
+                const remarksLines = doc.splitTextToSize(report.remarks, 180);
+                doc.text(remarksLines, 15, yPosition);
+                yPosition += remarksLines.length * 7 + 10;
+            }
+
+            // ✅ ADD SHOP DISPLAY IMAGES
+            if (report.shopDisplayImages && report.shopDisplayImages.length > 0) {
+                doc.addPage();
+                yPosition = 20;
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Shop Display Images", 15, yPosition);
+                yPosition += 10;
+
+                for (let i = 0; i < report.shopDisplayImages.length; i++) {
+                    const img = report.shopDisplayImages[i];
+                    const imageSource = bufferToBase64(img.data, img.contentType);
+
+                    if (imageSource) {
+                        if (i > 0 && i % 2 === 0) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+
+                        try {
+                            doc.addImage(imageSource, 'JPEG', 15, yPosition, 180, 120);
+                            doc.setFontSize(10);
+                            doc.text(`Image ${i + 1}`, 15, yPosition + 125);
+                            yPosition += 135;
+                        } catch (err) {
+                            console.error(`Error adding image ${i + 1}:`, err);
+                        }
+                    }
+                }
+            }
+
+            // ✅ ADD BILL COPIES
+            if (report.billCopies && report.billCopies.length > 0) {
+                doc.addPage();
+                yPosition = 20;
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Bill Copies", 15, yPosition);
+                yPosition += 10;
+
+                for (let i = 0; i < report.billCopies.length; i++) {
+                    const bill = report.billCopies[i];
+                    const imageSource = bufferToBase64(bill.data, bill.contentType);
+
+                    if (imageSource) {
+                        if (i > 0 && i % 2 === 0) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+
+                        try {
+                            doc.addImage(imageSource, 'JPEG', 15, yPosition, 180, 120);
+                            doc.setFontSize(10);
+                            doc.text(bill.fileName || `Bill ${i + 1}`, 15, yPosition + 125);
+                            yPosition += 135;
+                        } catch (err) {
+                            console.error(`Error adding bill ${i + 1}:`, err);
+                        }
+                    }
+                }
+            }
+
+            // ✅ ADD OTHER FILES
+            if (report.files && report.files.length > 0) {
+                doc.addPage();
+                yPosition = 20;
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Other Files", 15, yPosition);
+                yPosition += 10;
+
+                for (let i = 0; i < report.files.length; i++) {
+                    const file = report.files[i];
+                    const imageSource = bufferToBase64(file.data, file.contentType);
+
+                    if (imageSource) {
+                        if (i > 0 && i % 2 === 0) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+
+                        try {
+                            doc.addImage(imageSource, 'JPEG', 15, yPosition, 180, 120);
+                            doc.setFontSize(10);
+                            doc.text(`File ${i + 1}`, 15, yPosition + 125);
+                            yPosition += 135;
+                        } catch (err) {
+                            console.error(`Error adding file ${i + 1}:`, err);
+                        }
+                    }
+                }
+            }
+
+            // Save PDF
+            const fileName = `Report_${report.reportType}_${report.retailer?.outletCode || 'Unknown'}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+
+            toast.success("Report downloaded successfully!", { theme: "dark" });
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            toast.error("Failed to download report", { theme: "dark" });
+        }
+    };
+
 
     const handleImageChange = (e) => {
         const newFiles = Array.from(e.target.files || []);
@@ -156,12 +480,10 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
 
         const formData = new FormData();
 
-        // Append basic fields
         formData.append("reportType", reportType.value);
         if (frequency) formData.append("frequency", frequency.value);
         if (remarks) formData.append("remarks", remarks);
 
-        // ✅ Send removed indices to backend
         if (removedImageIndices.length > 0) {
             formData.append("removedImageIndices", JSON.stringify(removedImageIndices));
         }
@@ -172,7 +494,6 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
             formData.append("removedFileIndices", JSON.stringify(removedFileIndices));
         }
 
-        // Append stock fields (if stock type)
         if (reportType?.value === "Stock") {
             if (stockType) formData.append("stockType", stockType.value);
             if (brand) formData.append("brand", brand);
@@ -181,38 +502,25 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
             if (productType) formData.append("productType", productType.value);
             if (quantity) formData.append("quantity", quantity);
 
-            // Handle bill copies - ONLY append new uploads
             if (billCopies.length > 0) {
                 billCopies.forEach((file) => formData.append("billCopies", file));
             }
         }
 
-        // Append images for Window Display - ONLY append new uploads
         if (reportType?.value === "Window Display" && images.length > 0) {
             images.forEach((image) => formData.append("shopDisplayImages", image));
         }
 
-        // Append files for Others - ONLY append new uploads
         if (reportType?.value === "Others" && files.length > 0) {
             files.forEach((file) => formData.append("files", file));
         }
 
         try {
-            console.log("📤 Sending update for report:", report._id);
-
-            // ✅ Call the parent's onUpdate function
             await onUpdate(report._id, formData);
-
-            console.log("✅ Update complete, closing modal");
-
-            // ✅ Exit edit mode
             setIsEditing(false);
-
-            // ✅ Close the modal (parent will handle refresh)
             onClose();
-
         } catch (error) {
-            console.error("❌ Failed to update report:", error);
+            console.error("Failed to update report:", error);
             alert("Failed to update report. Please try again.");
         } finally {
             setIsSaving(false);
@@ -257,27 +565,6 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
         }
     }, [isEditing, report]);
 
-    // Helper function to convert Buffer to base64
-    const bufferToBase64 = (buffer, contentType) => {
-        if (!buffer || !buffer.data) return null;
-
-        try {
-            if (buffer.type === "Buffer" && Array.isArray(buffer.data)) {
-                const base64 = btoa(
-                    buffer.data.reduce(
-                        (data, byte) => data + String.fromCharCode(byte),
-                        ""
-                    )
-                );
-                return `data:${contentType || "image/jpeg"};base64,${base64}`;
-            }
-            return null;
-        } catch (error) {
-            console.error("Error converting buffer to base64:", error);
-            return null;
-        }
-    };
-
     return (
         <div
             className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
@@ -297,6 +584,17 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
                             <div className="flex items-center gap-3">
                                 {!isEditing ? (
                                     <>
+                                        {/* ✅ Download PDF Button */}
+                                        <button
+                                            onClick={handleDownloadPDF}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download PDF
+                                        </button>
+
                                         <button
                                             onClick={() => setIsEditing(true)}
                                             className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition"
@@ -321,9 +619,7 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
                                         </button>
                                         <button
                                             onClick={() => {
-                                                if (
-                                                    window.confirm("Discard all changes?")
-                                                ) {
+                                                if (window.confirm("Discard all changes?")) {
                                                     setIsEditing(false);
                                                 }
                                             }}
@@ -343,7 +639,7 @@ const ReportDetailsModal = ({ report, onClose, onUpdate, onDelete }) => {
                         </div>
                     </div>
 
-                    {/* Content */}
+                    {/* Content - Keep all your existing view/edit mode JSX here */}
                     <div className="p-6">
                         {isEditing ? (
                             // EDIT MODE

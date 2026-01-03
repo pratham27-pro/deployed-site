@@ -46,7 +46,6 @@ const customSelectStyles = {
 };
 
 const ClientHome = () => {
-  const API_BASE_URL = "https://conceptpromotions.in/api";
 
   // Filters
   const [campaignStatus, setCampaignStatus] = useState({ value: "active", label: "Active" });
@@ -94,27 +93,26 @@ const ClientHome = () => {
       const token = localStorage.getItem("client_token");
 
       // Fetch campaigns
-      const campaignsRes = await fetch(`${API_BASE_URL}/client/client/campaigns`, {
+      const campaignsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const campaignsData = await campaignsRes.json();
       setAllCampaigns(campaignsData.campaigns || []);
 
       // Fetch all budgets
-      const budgetsRes = await fetch(`${API_BASE_URL}/budgets`, {
+      const budgetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const budgetsData = await budgetsRes.json();
       setBudgets(budgetsData.budgets || []);
 
       // Fetch all reports
-      const reportsRes = await fetch(`${API_BASE_URL}/reports/client-reports`, {
+      const reportsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/client-reports`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const reportsData = await reportsRes.json();
       setReports(reportsData.reports || []);
 
-      toast.success("Data loaded successfully!", { theme: "dark", toastId: "data-loaded" });
     } catch (err) {
       console.error("Error fetching data:", err);
       toast.error("Failed to load data", { theme: "dark", toastId: "data-error" });
@@ -152,7 +150,7 @@ const ClientHome = () => {
       // Loop through assignedRetailers
       (campaign.assignedRetailers || []).forEach((retailerAssignment) => {
         const retailer = retailerAssignment.retailerId;
-        
+
         if (!retailer || !retailer._id) return;
 
         const retailerId = retailer._id;
@@ -162,7 +160,7 @@ const ClientHome = () => {
         const state = retailer.shopDetails?.shopAddress?.state || "N/A";
 
         // Find payment info from budgets
-        const budget = budgets.find((b) => 
+        const budget = budgets.find((b) =>
           (b.retailerId._id || b.retailerId) === retailerId
         );
 
@@ -195,9 +193,9 @@ const ClientHome = () => {
 
         // Check if retailer has reported
         const hasReported = reports.some(
-          (report) => 
+          (report) =>
             (report.retailer?.retailerId?._id === retailerId ||
-            report.retailer?.retailerId === retailerId) &&
+              report.retailer?.retailerId === retailerId) &&
             (report.campaignId?._id === campaign._id || report.campaignId === campaign._id)
         );
 
@@ -254,7 +252,7 @@ const ClientHome = () => {
   // ===============================
   const stateOptions = useMemo(() => {
     const stateSet = new Set();
-    
+
     filteredCampaigns.forEach((campaign) => {
       (campaign.assignedRetailers || []).forEach((retailerAssignment) => {
         const state = retailerAssignment.retailerId?.shopDetails?.shopAddress?.state;
@@ -517,13 +515,13 @@ const ClientHome = () => {
             selectedStates.length > 0 ||
             selectedRetailers.length > 0 ||
             selectedPayments.length > 0) && (
-            <button
-              onClick={handleClearFilters}
-              className="text-sm text-red-600 underline hover:text-red-800"
-            >
-              Clear All Filters
-            </button>
-          )}
+              <button
+                onClick={handleClearFilters}
+                className="text-sm text-red-600 underline hover:text-red-800"
+              >
+                Clear All Filters
+              </button>
+            )}
         </div>
 
         {/* STATISTICS CARDS */}
@@ -613,13 +611,12 @@ const ClientHome = () => {
                         <td className="px-4 py-3 text-sm text-gray-700">{outlet.state}</td>
                         <td className="px-4 py-3 text-sm">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              outlet.paymentStatus === "Completed"
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${outlet.paymentStatus === "Completed"
                                 ? "bg-green-100 text-green-800"
                                 : outlet.paymentStatus === "Partially Paid"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
                           >
                             {outlet.paymentStatus}
                           </span>

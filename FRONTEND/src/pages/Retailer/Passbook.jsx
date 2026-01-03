@@ -42,8 +42,6 @@ const RetailerPassbook = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = "https://conceptpromotions.in/api";
-
   // ===============================
   // FETCH RETAILER INFO ON MOUNT
   // ===============================
@@ -59,7 +57,7 @@ const RetailerPassbook = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/retailer/retailer/me`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -88,7 +86,7 @@ const RetailerPassbook = () => {
   // ===============================
   const fetchAssignedCampaigns = async (token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/retailer/campaigns`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -118,7 +116,7 @@ const RetailerPassbook = () => {
       params.append("retailerId", retailerId);
 
       const response = await fetch(
-        `${API_BASE_URL}/budgets/passbook?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/passbook?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token || localStorage.getItem("retailer_token")}`,

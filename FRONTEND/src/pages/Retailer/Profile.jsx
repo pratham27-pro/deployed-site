@@ -21,8 +21,6 @@ import {
 } from "react-icons/fa";
 import { IoClose, IoChevronDown } from "react-icons/io5";
 
-const API_BASE = "https://conceptpromotions.in/api";
-
 const SearchableSelect = ({ label, placeholder, options, value, onChange, leftIcon, disabled }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -301,7 +299,7 @@ const RetailerProfile = () => {
           return;
         }
 
-        const res = await fetch(`${API_BASE}/retailer/retailer/me`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -361,7 +359,7 @@ const RetailerProfile = () => {
         if (pennyValue) setPennyCheckLocked(true);
 
         // Fetch images
-        const imageStatusRes = await fetch(`${API_BASE}/retailer/retailer/image-status`, {
+        const imageStatusRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/image-status`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -369,7 +367,7 @@ const RetailerProfile = () => {
           const imageStatus = await imageStatusRes.json();
 
           if (imageStatus.hasGovtIdPhoto) {
-            const imgRes = await fetch(`${API_BASE}/retailer/retailer/image/govtIdPhoto`, {
+            const imgRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/image/govtIdPhoto`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (imgRes.ok) {
@@ -379,7 +377,7 @@ const RetailerProfile = () => {
           }
 
           if (imageStatus.hasPersonPhoto) {
-            const imgRes = await fetch(`${API_BASE}/retailer/retailer/image/personPhoto`, {
+            const imgRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/image/personPhoto`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (imgRes.ok) {
@@ -389,7 +387,7 @@ const RetailerProfile = () => {
           }
 
           if (imageStatus.hasRegistrationFormFile) {
-            const imgRes = await fetch(`${API_BASE}/retailer/retailer/image/registrationFormFile`, {
+            const imgRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/image/registrationFormFile`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (imgRes.ok) {
@@ -399,7 +397,7 @@ const RetailerProfile = () => {
           }
 
           if (imageStatus.hasOutletPhoto) {
-            const imgRes = await fetch(`${API_BASE}/retailer/retailer/image/outletPhoto`, {
+            const imgRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/retailer/image/outletPhoto`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (imgRes.ok) {
@@ -499,7 +497,7 @@ const RetailerProfile = () => {
       if (registrationFormFile?.raw) formData.append("registrationFormFile", registrationFormFile.raw);
       if (outletPhoto?.raw) formData.append("outletPhoto", outletPhoto.raw);
 
-      const res = await fetch(`${API_BASE}/retailer/me`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/me`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

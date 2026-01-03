@@ -64,7 +64,7 @@ const PostJob = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("https://conceptpromotions.in/api/admin/jobs", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/jobs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

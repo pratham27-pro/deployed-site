@@ -14,8 +14,6 @@ import {
 } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
-const API_URL = "https://conceptpromotions.in/api";
-
 const states = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
   "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
@@ -406,7 +404,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch(`${API_URL}/employee/profile`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -551,7 +549,7 @@ const Profile = () => {
 
       // Step 1: Check which documents exist
       const statusResponse = await fetch(
-        `${API_URL}/employee/employee/documents/status`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/documents/status`,
         {
           method: "GET",
           headers: {
@@ -590,7 +588,7 @@ const Profile = () => {
         if (status[hasKey]) {
           // Create blob URL for each existing image
           const imageResponse = await fetch(
-            `${API_URL}/employee/employee/document/${type}`,
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/document/${type}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -869,7 +867,7 @@ const Profile = () => {
 
       console.log("Submitting profile update...");
 
-      const response = await fetch(`${API_URL}/employee/employee/profile`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

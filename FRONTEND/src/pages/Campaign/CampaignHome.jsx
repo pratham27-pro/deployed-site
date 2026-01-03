@@ -11,7 +11,7 @@ const CampaignHome = () => {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "https://conceptpromotions.in/api/admin/campaigns",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
         {
           method: "GET",
           headers: {

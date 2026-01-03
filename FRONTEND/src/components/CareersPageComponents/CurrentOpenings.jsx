@@ -18,7 +18,7 @@ const CurrentOpenings = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const res = await fetch("https://conceptpromotions.in/api/career/jobs");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/career/jobs`);
       const data = await res.json();
 
       if (res.ok && data.jobs) {

@@ -15,8 +15,6 @@ const CampaignDetails = ({ campaign, onBack }) => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("info");
 
-  const API_BASE_URL = "https://conceptpromotions.in/api/retailer";
-
   // Fetch full campaign details on mount
   useEffect(() => {
     const fetchCampaignDetails = async () => {
@@ -32,7 +30,7 @@ const CampaignDetails = ({ campaign, onBack }) => {
         }
 
         const response = await axios.get(
-          `${API_BASE_URL}/campaigns/${campaign._id}/status`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/campaigns/${campaign._id}/status`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }

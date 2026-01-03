@@ -21,7 +21,7 @@ const EmployeeSignIn = () => {
 
     try {
       const response = await fetch(
-        "https://conceptpromotions.in/api/employee/employee/login",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

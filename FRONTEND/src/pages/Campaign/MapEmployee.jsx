@@ -67,7 +67,7 @@ const MapEmployee = () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                "https://conceptpromotions.in/api/admin/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -111,7 +111,7 @@ const MapEmployee = () => {
             retailers.map(async (retailer) => {
                 try {
                     const res = await fetch(
-                        `https://conceptpromotions.in/api/admin/campaign/${campaignId}/retailer/${retailer._id}/employee`,
+                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/retailer/${retailer._id}/employee`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }
@@ -150,7 +150,7 @@ const MapEmployee = () => {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-            `https://conceptpromotions.in/api/admin/campaign/${campaignId}/employee-retailer-mapping`,
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -292,7 +292,7 @@ const MapEmployee = () => {
 
             // 1️⃣ Fetch retailers + employees
             const res = await fetch(
-                `https://conceptpromotions.in/api/admin/campaign/${selected.value}/retailers-with-employees`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${selected.value}/retailers-with-employees`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -392,7 +392,7 @@ const MapEmployee = () => {
         for (const retailerId of selectedRetailers) {
             try {
                 const res = await fetch(
-                    "https://conceptpromotions.in/api/admin/campaign/assign-employee-to-retailer",
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/assign-employee-to-retailer`,
                     {
                         method: "POST",
                         headers: {

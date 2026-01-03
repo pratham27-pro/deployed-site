@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SubmitReportForm from "./SubmitReportForm";
+import SubmitReportModal from "./SubmitReportModal";
 import ReportDetailsModal from "./ReportDetailsModal";
 
 const customSelectStyles = {
@@ -84,7 +84,7 @@ const ManageReports = () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(
-                "https://conceptpromotions.in/api/admin/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -119,16 +119,12 @@ const ManageReports = () => {
         }
     };
 
-    // Replace the fetchRetailersAndEmployees function with this updated version:
-
     const fetchRetailersAndEmployees = async (campaignId) => {
         setModalLoading(true);
         try {
             const token = localStorage.getItem("token");
-
-            // Fetch the campaign details to get assigned retailers
             const campaignRes = await fetch(
-                `https://conceptpromotions.in/api/admin/campaigns/${campaignId}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -143,7 +139,6 @@ const ManageReports = () => {
 
             const campaign = campaignData.campaign || campaignData;
 
-            // Get all retailers assigned to this campaign
             const assignedRetailerIds = (campaign.assignedRetailers || []).map(
                 (ar) => (typeof ar === "string" ? ar : ar.retailerId?._id || ar.retailerId)
             );
@@ -159,9 +154,8 @@ const ManageReports = () => {
                 return;
             }
 
-            // Fetch all retailers
             const retailersRes = await fetch(
-                "https://conceptpromotions.in/api/admin/retailers",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -169,12 +163,10 @@ const ManageReports = () => {
             const retailersData = await retailersRes.json();
             const allRetailers = retailersData.retailers || [];
 
-            // Filter retailers that are assigned to this campaign
             const campaignRetailers = allRetailers.filter((r) =>
                 assignedRetailerIds.includes(r._id)
             );
 
-            // Extract unique states from campaign retailers
             const stateSet = new Set();
             campaignRetailers.forEach((retailer) => {
                 const state = retailer.shopDetails?.shopAddress?.state;
@@ -183,7 +175,6 @@ const ManageReports = () => {
                 }
             });
 
-            // Format retailers: Outlet Name • Outlet Code • Retailer Name
             const formattedRetailers = campaignRetailers.map((r) => {
                 const outletName = r.shopDetails?.shopName || "N/A";
                 const outletCode = r.uniqueId || "N/A";
@@ -197,15 +188,13 @@ const ManageReports = () => {
                 };
             });
 
-            // Get assigned employees from campaign
             const assignedEmployeeIds = (campaign.assignedEmployees || []).map(
                 (ae) => (typeof ae === "string" ? ae : ae.employeeId?._id || ae.employeeId)
             );
 
             if (assignedEmployeeIds.length > 0) {
-                // Fetch all employees
                 const employeesRes = await fetch(
-                    "https://conceptpromotions.in/api/admin/employees",
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/employees`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
                     }
@@ -213,12 +202,10 @@ const ManageReports = () => {
                 const employeesData = await employeesRes.json();
                 const allEmployees = employeesData.employees || [];
 
-                // Filter employees assigned to this campaign
                 const campaignEmployees = allEmployees.filter((e) =>
                     assignedEmployeeIds.includes(e._id)
                 );
 
-                // Format employees: Employee Name • Employee Code
                 const formattedEmployees = campaignEmployees.map((e) => {
                     const employeeName = e.name || "N/A";
                     const employeeCode = e.employeeId || "N/A";
@@ -238,7 +225,6 @@ const ManageReports = () => {
                 setAvailableEmployees([]);
             }
 
-            // Format states
             const formattedStates = Array.from(stateSet).map((state) => ({
                 value: state,
                 label: state,
@@ -261,7 +247,6 @@ const ManageReports = () => {
         }
     };
 
-    // ✅ Fetch Reports - Updated for new backend
     const fetchReports = async (page = 1) => {
         if (!selectedCampaign) {
             toast.error("Please select a campaign first", { theme: "dark" });
@@ -274,11 +259,10 @@ const ManageReports = () => {
         try {
             const token = localStorage.getItem("token");
 
-            // Build query params using new API structure
             const params = new URLSearchParams();
             params.append("campaignId", selectedCampaign.value);
             params.append("page", page);
-            params.append("limit", 50);
+            params.append("limit", 3);
 
             if (selectedReportType) {
                 params.append("reportType", selectedReportType.value);
@@ -296,9 +280,8 @@ const ManageReports = () => {
                 params.append("endDate", toDate);
             }
 
-            // Use new API endpoint
             const res = await fetch(
-                `https://conceptpromotions.in/api/reports/all?${params.toString()}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/all?${params.toString()}`,
                 {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
@@ -317,7 +300,6 @@ const ManageReports = () => {
 
             let reports = data.reports || [];
 
-            // Client-side filter by state if selected
             if (selectedState) {
                 reports = reports.filter(
                     (report) =>
@@ -349,14 +331,12 @@ const ManageReports = () => {
         }
     };
 
-    // ✅ Submit Report - Updated for new backend
     const handleSubmitReport = async (formData) => {
         try {
             const token = localStorage.getItem("token");
 
-            // Use new API endpoint
             const res = await fetch(
-                "https://conceptpromotions.in/api/reports/create",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/create`,
                 {
                     method: "POST",
                     headers: {
@@ -373,7 +353,6 @@ const ManageReports = () => {
                     theme: "dark",
                 });
                 setShowModal(false);
-                // Refresh reports if already searched
                 if (hasSearched) {
                     fetchReports(currentPage);
                 }
@@ -388,7 +367,6 @@ const ManageReports = () => {
         }
     };
 
-    // ✅ Handle Campaign Change
     const handleCampaignChange = (selected) => {
         setSelectedCampaign(selected);
         setSelectedRetailer(null);
@@ -409,7 +387,6 @@ const ManageReports = () => {
         }
     };
 
-    // Clear all filters
     const handleClearFilters = () => {
         setSelectedRetailer(null);
         setSelectedEmployee(null);
@@ -439,21 +416,18 @@ const ManageReports = () => {
         });
     };
 
-    // Handle View Details
     const handleViewDetails = async (report) => {
         try {
             const token = localStorage.getItem("token");
-
-            // Fetch full report details
             const res = await fetch(
-                `https://conceptpromotions.in/api/reports/${report._id}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
             const data = await res.json();
-            
+
             console.log("Fetched report details:", data);
 
             if (res.ok) {
@@ -475,7 +449,7 @@ const ManageReports = () => {
             console.log("Updating report:", reportId);
 
             const res = await fetch(
-                `https://conceptpromotions.in/api/reports/update/${reportId}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/update/${reportId}`,
                 {
                     method: "PUT",
                     headers: {
@@ -492,11 +466,9 @@ const ManageReports = () => {
 
                 toast.success("Report updated successfully!", { theme: "dark" });
 
-                // ✅ Close modal first
                 setShowDetailsModal(false);
                 setSelectedReport(null);
 
-                // ✅ Refresh the reports list
                 if (hasSearched) {
                     await fetchReports(currentPage);
                 }
@@ -512,7 +484,6 @@ const ManageReports = () => {
         }
     };
 
-    // ✅ Handle Delete Report - Updated for new backend
     const handleDeleteReport = async (reportId) => {
         if (!window.confirm("Are you sure you want to delete this report?")) {
             return;
@@ -522,7 +493,7 @@ const ManageReports = () => {
             const token = localStorage.getItem("token");
 
             const res = await fetch(
-                `https://conceptpromotions.in/api/reports/delete/${reportId}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/delete/${reportId}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -536,7 +507,6 @@ const ManageReports = () => {
             if (res.ok) {
                 toast.success("Report deleted successfully", { theme: "dark" });
                 setShowDetailsModal(false);
-                // Refresh reports
                 if (hasSearched) {
                     fetchReports(currentPage);
                 }
@@ -551,7 +521,6 @@ const ManageReports = () => {
         }
     };
 
-    // Handle page change
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -629,7 +598,6 @@ const ManageReports = () => {
                                 Filter Reports
                             </h2>
 
-                            {/* First Row - Report Type, State, Retailer */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -677,7 +645,6 @@ const ManageReports = () => {
                                 </div>
                             </div>
 
-                            {/* Second Row - Employee and Date Filters */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -866,11 +833,11 @@ const ManageReports = () => {
                                 </table>
                             </div>
 
-                            {/* Pagination */}
+                            {/* ✅ Pagination */}
                             {totalPages > 1 && (
                                 <div className="flex justify-between items-center mt-6">
                                     <div className="text-sm text-gray-600">
-                                        Page {currentPage} of {totalPages}
+                                        Page {currentPage} of {totalPages} • Total: {totalReports} reports
                                     </div>
                                     <div className="flex gap-2">
                                         <button
@@ -882,6 +849,36 @@ const ManageReports = () => {
                                         >
                                             Previous
                                         </button>
+
+                                        {/* Page Numbers */}
+                                        <div className="flex gap-1">
+                                            {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                                                let pageNum;
+                                                if (totalPages <= 5) {
+                                                    pageNum = i + 1;
+                                                } else if (currentPage <= 3) {
+                                                    pageNum = i + 1;
+                                                } else if (currentPage >= totalPages - 2) {
+                                                    pageNum = totalPages - 4 + i;
+                                                } else {
+                                                    pageNum = currentPage - 2 + i;
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => handlePageChange(pageNum)}
+                                                        className={`px-3 py-2 rounded ${currentPage === pageNum
+                                                            ? "bg-[#E4002B] text-white"
+                                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                                            }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
                                         <button
                                             onClick={() =>
                                                 handlePageChange(currentPage + 1)
@@ -897,64 +894,27 @@ const ManageReports = () => {
                         </div>
                     )}
 
-                    {loading && (
-                        <div className="text-center py-8 text-gray-200">
-                            Loading reports...
-                        </div>
-                    )}
-
                     {!loading && hasSearched && displayReports.length === 0 && (
-                        <div className="text-center py-8 text-gray-500 bg-[#EDEDED] rounded-lg">
-                            No reports found for the selected filters. Try
-                            adjusting your search criteria.
-                        </div>
-                    )}
-
-                    {!hasSearched && selectedCampaign && (
-                        <div className="text-center py-8 text-gray-400 bg-[#EDEDED] rounded-lg">
-                            Click "Search Reports" to view reports for this
-                            campaign
+                        <div className="bg-[#EDEDED] rounded-lg shadow-md p-12 text-center">
+                            <p className="text-gray-600 text-lg">
+                                No reports found for the selected filters
+                            </p>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Add Report Modal */}
+            {/* Modals */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-bold text-[#E4002B]">
-                                    Add Report
-                                </h2>
-                                <button
-                                    onClick={() => setShowModal(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    <span className="text-2xl">&times;</span>
-                                </button>
-                            </div>
-
-                            {modalLoading ? (
-                                <div className="text-center py-8">
-                                    Loading...
-                                </div>
-                            ) : (
-                                <SubmitReportForm
-                                    retailers={retailers}
-                                    employees={employees}
-                                    campaignId={selectedCampaign.value}
-                                    onSubmit={handleSubmitReport}
-                                    onCancel={() => setShowModal(false)}
-                                />
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <SubmitReportModal
+                    onClose={() => setShowModal(false)}
+                    campaignId={selectedCampaign?.value}
+                    retailers={retailers}
+                    employees={employees}
+                    onSubmit={handleSubmitReport}
+                />
             )}
 
-            {/* Report Details Modal */}
             {showDetailsModal && selectedReport && (
                 <ReportDetailsModal
                     report={selectedReport}
@@ -966,6 +926,7 @@ const ManageReports = () => {
                     onDelete={handleDeleteReport}
                 />
             )}
+
         </>
     );
 };

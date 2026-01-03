@@ -24,7 +24,7 @@ const ClientSignIn = () => {
 
     try {
       const response = await fetch(
-        "https://conceptpromotions.in/api/client/admin/login",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/admin/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

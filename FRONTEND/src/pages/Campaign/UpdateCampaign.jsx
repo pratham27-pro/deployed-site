@@ -6,14 +6,12 @@ const UpdateCampaign = ({ onEdit }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API = "https://conceptpromotions.in/api/admin/campaigns";
-
   const fetchCampaigns = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(API, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

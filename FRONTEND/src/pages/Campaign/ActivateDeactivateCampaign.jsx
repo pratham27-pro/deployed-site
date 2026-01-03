@@ -7,14 +7,12 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
   const [status, setStatus] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const API_BASE = "https://conceptpromotions.in";
-
   // ✅ Fetch Campaign details
   const fetchCampaignDetails = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/admin/campaigns/${campaignId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/campaigns/${campaignId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -47,7 +45,7 @@ const ActivateDeactivateCampaign = ({ campaignId, onBack }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/admin/campaigns/${campaignId}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/campaigns/${campaignId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

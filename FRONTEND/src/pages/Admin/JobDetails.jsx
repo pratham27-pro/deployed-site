@@ -13,7 +13,7 @@ const JobDetails = ({ jobId, onBack }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `https://conceptpromotions.in/api/admin/career/jobs/${jobId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/career/jobs/${jobId}`,
         {
           method: "GET",
           headers: {
@@ -49,7 +49,7 @@ const JobDetails = ({ jobId, onBack }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `https://conceptpromotions.in/api/admin/jobs/${jobId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/jobs/${jobId}`,
         {
           method: "PUT",
           headers: {

@@ -78,7 +78,7 @@ const AssignCampaign = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "https://conceptpromotions.in/api/admin/campaigns",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -120,7 +120,7 @@ const AssignCampaign = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "https://conceptpromotions.in/api/admin/retailers",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
@@ -146,7 +146,7 @@ const AssignCampaign = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "https://conceptpromotions.in/api/admin/employees",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/employees`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
@@ -446,7 +446,7 @@ const AssignCampaign = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "https://conceptpromotions.in/api/admin/campaigns/assign",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/assign`,
         {
           method: "POST",
           headers: {

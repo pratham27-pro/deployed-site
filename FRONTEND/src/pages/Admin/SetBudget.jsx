@@ -62,7 +62,7 @@ const SetBudget = () => {
 
             // Fetch Campaigns
             const campaignsRes = await fetch(
-                "https://conceptpromotions.in/api/admin/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -74,7 +74,7 @@ const SetBudget = () => {
 
             // Fetch Retailers
             const retailersRes = await fetch(
-                "https://conceptpromotions.in/api/admin/retailers",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -130,7 +130,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/retailer/${selectedRetailer.value}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/retailer/${selectedRetailer.value}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -396,7 +396,7 @@ const SetBudget = () => {
             };
 
             const response = await fetch(
-                "https://conceptpromotions.in/api/budgets/set-campaign-tca",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/set-campaign-tca`,
                 {
                     method: "POST",
                     headers: {
@@ -441,7 +441,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/${budgetId}/campaign/${campaignSubId}/tca`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetId}/campaign/${campaignSubId}/tca`,
                 {
                     method: "PATCH",
                     headers: {
@@ -485,7 +485,7 @@ const SetBudget = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/${budgetId}/campaign/${campaignSubId}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetId}/campaign/${campaignSubId}`,
                 {
                     method: "DELETE",
                     headers: {

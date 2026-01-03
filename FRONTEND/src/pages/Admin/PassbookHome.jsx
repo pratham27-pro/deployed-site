@@ -60,7 +60,7 @@ const PassbookHome = () => {
 
             // Fetch Campaigns
             const campaignsRes = await fetch(
-                "https://conceptpromotions.in/api/admin/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -72,7 +72,7 @@ const PassbookHome = () => {
 
             // Fetch Retailers
             const retailersRes = await fetch(
-                "https://conceptpromotions.in/api/admin/retailers",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -127,7 +127,7 @@ const PassbookHome = () => {
     const fetchPassbookData = async () => {
         try {
             const token = localStorage.getItem("token");
-            
+
             // Build query params
             const params = new URLSearchParams();
             if (selectedRetailer) params.append("retailerId", selectedRetailer.value);
@@ -135,7 +135,7 @@ const PassbookHome = () => {
             if (selectedCampaign) params.append("campaignId", selectedCampaign.value);
 
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/passbook?${params.toString()}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/passbook?${params.toString()}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

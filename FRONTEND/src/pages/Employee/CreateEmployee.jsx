@@ -8,8 +8,6 @@ import { IoClose } from "react-icons/io5"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-const API_URL = "https://conceptpromotions.in/api/admin/employees"
-
 const jobRoleOptions = [
   "Programme Manager",
   "Regional Manager",
@@ -151,7 +149,7 @@ const CreateEmployee = () => {
     setSubmitting(true)
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

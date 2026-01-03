@@ -24,7 +24,7 @@ const RetailerSignIn = () => {
 
     try {
       const response = await fetch(
-        "https://conceptpromotions.in/api/retailer/login",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/retailer/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

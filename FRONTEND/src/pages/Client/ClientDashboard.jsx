@@ -58,7 +58,7 @@ const ClientDashboard = () => {
 
             // 1️⃣ Fetch Campaigns
             const campRes = await fetch(
-                "https://conceptpromotions.in/api/client/client/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/campaigns`,
                 { headers }
             );
 
@@ -71,7 +71,7 @@ const ClientDashboard = () => {
 
             // 2️⃣ Fetch Payments
             const payRes = await fetch(
-                "https://conceptpromotions.in/api/client/client/payments",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/payments`,
                 { headers }
             );
 
@@ -82,7 +82,7 @@ const ClientDashboard = () => {
             const payData = payRes.ok ? await payRes.json() : { payments: [] };
             // 3️⃣ Fetch Reported Outlets
             const reportRes = await fetch(
-                "https://conceptpromotions.in/api/client/client/reported-outlets",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/client/client/reported-outlets`,
                 { headers }
             );
 

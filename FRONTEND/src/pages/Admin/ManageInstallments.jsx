@@ -73,7 +73,7 @@ const ManageInstallments = () => {
 
             // Fetch Campaigns
             const campaignsRes = await fetch(
-                "https://conceptpromotions.in/api/admin/campaigns",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -85,7 +85,7 @@ const ManageInstallments = () => {
 
             // Fetch Retailers
             const retailersRes = await fetch(
-                "https://conceptpromotions.in/api/admin/retailers",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -141,7 +141,7 @@ const ManageInstallments = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/retailer/${selectedRetailer.value}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/retailer/${selectedRetailer.value}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -428,7 +428,7 @@ const ManageInstallments = () => {
             };
 
             const response = await fetch(
-                "https://conceptpromotions.in/api/budgets/add-payment",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/add-payment`,
                 {
                     method: "POST",
                     headers: {
@@ -486,7 +486,7 @@ const ManageInstallments = () => {
             };
 
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/${budgetData._id}/campaign/${campaignBudget._id}/installment/${editingInstallment._id}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetData._id}/campaign/${campaignBudget._id}/installment/${editingInstallment._id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -526,7 +526,7 @@ const ManageInstallments = () => {
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(
-                `https://conceptpromotions.in/api/budgets/${budgetData._id}/campaign/${campaignBudget._id}/installment/${installment._id}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/${budgetData._id}/campaign/${campaignBudget._id}/installment/${installment._id}`,
                 {
                     method: "DELETE",
                     headers: {

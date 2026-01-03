@@ -63,7 +63,7 @@ const EmployeeDashboard = () => {
                 }
 
                 const response = await fetch(
-                    "https://conceptpromotions.in/api/employee/profile",
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`,
                     {
                         method: "GET",
                         headers: {

@@ -50,8 +50,6 @@ const EditCampaign = ({ campaignId, onBack }) => {
     states: [],
   });
 
-  const API_BASE = "https://conceptpromotions.in";
-
   const getAllStates = () => {
     const allStates = Object.values(regionStates).flat();
     return allStates.map((state) => ({ value: state, label: state }));
@@ -74,7 +72,7 @@ const EditCampaign = ({ campaignId, onBack }) => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`${API_BASE}/api/admin/campaigns/${campaignId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -117,7 +115,7 @@ const EditCampaign = ({ campaignId, onBack }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/admin/campaigns/${campaignId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns/${campaignId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

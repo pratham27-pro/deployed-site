@@ -107,11 +107,10 @@ const IconInput = ({ icon: Icon, label, placeholder, type = "text", value, onCha
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2 border rounded-lg outline-none focus:ring-2 text-sm ${
-                    error
+                className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2 border rounded-lg outline-none focus:ring-2 text-sm ${error
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-[#E4002B]"
-                }`}
+                    }`}
                 {...rest}
             />
         </div>
@@ -278,7 +277,7 @@ const CreateRetailer = () => {
 
         try {
             const response = await fetch(
-                "https://conceptpromotions.in/api/admin/retailers",
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/retailers`,
                 {
                     method: "POST",
                     headers: {
@@ -330,7 +329,7 @@ const CreateRetailer = () => {
     return (
         <>
             <ToastContainer />
-            
+
             <div className="flex justify-center items-center w-full min-h-screen bg-[#171717] py-8">
                 <div className="w-full max-w-2xl bg-[#EDEDED] shadow-md rounded-xl p-8">
                     <h1 className="text-2xl font-bold text-[#E4002B] text-center mb-6">

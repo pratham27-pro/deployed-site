@@ -250,7 +250,7 @@ const CreateClient = () => {
       }
 
       const response = await fetch(
-        "https://conceptpromotions.in/api/admin/add-client-admin",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/add-client-admin`,
         {
           method: "POST",
           headers: {

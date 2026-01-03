@@ -57,8 +57,6 @@ const EmployeeViewReports = ({ campaign }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [loadingReport, setLoadingReport] = useState(false);
 
-  const API_BASE_URL = "https://conceptpromotions.in/api";
-
   // Fetch employee info and campaign ID
   useEffect(() => {
     fetchEmployeeInfo();
@@ -82,7 +80,7 @@ const EmployeeViewReports = ({ campaign }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/employee/profile`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -102,7 +100,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${API_BASE_URL}/employee/employee/campaigns`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/employee/campaigns`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -127,7 +125,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaignId}/employee-retailer-mapping`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -173,7 +171,7 @@ const EmployeeViewReports = ({ campaign }) => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE_URL}/reports/employee/${employeeInfo._id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/employee/${employeeInfo._id}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -287,7 +285,7 @@ const EmployeeViewReports = ({ campaign }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE_URL}/reports/${report._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/${report._id}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });

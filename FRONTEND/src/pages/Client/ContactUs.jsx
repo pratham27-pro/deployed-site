@@ -108,7 +108,7 @@ const ContactForm = () => {
 
     try {
       // Replace with your actual backend URL
-      const res = await fetch("https://conceptpromotions.in/api/contact/send", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/contact/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

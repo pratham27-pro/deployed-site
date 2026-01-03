@@ -32,7 +32,7 @@ const JobSeekers = () => {
 
   // Fetch job roles
   useEffect(() => {
-    fetch("https://conceptpromotions.in/api/career/jobs")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/career/jobs`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setJobs(data);
@@ -93,7 +93,7 @@ const JobSeekers = () => {
     formData.append("resume", file);
 
     try {
-      const response = await fetch("https://conceptpromotions.in/api/career/apply", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/career/apply`, {
         method: "POST",
         body: formData,
       });

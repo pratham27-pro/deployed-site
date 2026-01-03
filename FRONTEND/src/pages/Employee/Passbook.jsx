@@ -48,8 +48,6 @@ const EmployeePassbook = () => {
     
     const [loading, setLoading] = useState(true);
 
-    const API_BASE_URL = "https://conceptpromotions.in/api";
-
     // ===============================
     // FETCH EMPLOYEE INFO ON MOUNT
     // ===============================
@@ -65,7 +63,7 @@ const EmployeePassbook = () => {
                 return;
             }
 
-            const response = await fetch(`${API_BASE_URL}/employee/profile`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employee/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -92,7 +90,7 @@ const EmployeePassbook = () => {
     const fetchEmployeeRetailerMappings = async (employeeId, token) => {
         try {
             // Fetch all active campaigns
-            const campaignsRes = await axios.get(`${API_BASE_URL}/admin/campaigns`, {
+            const campaignsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -106,7 +104,7 @@ const EmployeePassbook = () => {
             for (const campaign of activeCampaigns) {
                 try {
                     const mappingRes = await axios.get(
-                        `${API_BASE_URL}/admin/campaign/${campaign._id}/employee-retailer-mapping`,
+                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaign/${campaign._id}/employee-retailer-mapping`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }
@@ -175,7 +173,7 @@ const EmployeePassbook = () => {
             params.append("retailerId", selectedRetailer.value);
 
             const response = await fetch(
-                `${API_BASE_URL}/budgets/passbook?${params.toString()}`,
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/budgets/passbook?${params.toString()}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

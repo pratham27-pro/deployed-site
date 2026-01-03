@@ -185,7 +185,7 @@ const CreateCampaign = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("https://conceptpromotions.in/api/admin/campaigns", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/campaigns`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
