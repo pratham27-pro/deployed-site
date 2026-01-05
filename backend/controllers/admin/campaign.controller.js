@@ -26,94 +26,177 @@ export const getAllCampaigns = async (req, res) => {
 // ====== ADD CAMPAIGN ======
 export const addCampaign = async (req, res) => {
     try {
-        const {
-            name,
-            client, // organizationName string
-            type,
-            regions, // ARRAY
-            states, // ARRAY
-            campaignStartDate,
-            campaignEndDate,
-        } = req.body;
-
-        // Admin auth check
+        /* =========================
+       AUTH CHECK
+    ========================== */
         if (!req.user || req.user.role !== "admin") {
-            return res
-                .status(403)
-                .json({ message: "Only admins can create campaigns" });
-        }
-
-        // Required fields validation
-        if (!name || !client || !type) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
-
-        // Validate regions
-        if (!regions || !Array.isArray(regions) || regions.length === 0) {
-            return res
-                .status(400)
-                .json({ message: "At least one region is required" });
-        }
-
-        // Validate states
-        if (!states || !Array.isArray(states) || states.length === 0) {
-            return res
-                .status(400)
-                .json({ message: "At least one state is required" });
-        }
-
-        // Validate organization exists (ONLY VALIDATION)
-        const clientOrg = await ClientAdmin.findOne({
-            organizationName: client,
-        });
-
-        if (!clientOrg) {
-            return res.status(404).json({
-                message: `Client organization '${client}' does not exist.`,
+            return res.status(403).json({
+                success: false,
+                message: "Only admins can create campaigns",
             });
         }
 
-        // Date validation
-        if (!campaignStartDate || !campaignEndDate) {
-            return res
-                .status(400)
-                .json({ message: "Campaign start and end date are required" });
+        /* =========================
+       EXTRACT BODY
+    ========================== */
+        let {
+            name,
+            client,
+            type,
+            regions,
+            states,
+            campaignStartDate,
+            campaignEndDate,
+
+            // TEXT T&C
+            termsAndConditions,
+
+            // GRATIFICATION
+            gratificationType,
+            gratificationAmount,
+            gratificationDescription,
+            gratificationConditions,
+        } = req.body;
+
+        /* =========================
+       REQUIRED FIELD VALIDATION
+    ========================== */
+        if (
+            !name ||
+            !client ||
+            !type ||
+            !regions ||
+            !states ||
+            !campaignStartDate ||
+            !campaignEndDate ||
+            !termsAndConditions
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields",
+            });
         }
 
-        const start = new Date(campaignStartDate);
-        const end = new Date(campaignEndDate);
-
-        if (isNaN(start) || isNaN(end)) {
-            return res.status(400).json({ message: "Invalid date format" });
+        /* =========================
+       PARSE ARRAYS (MULTIPART SAFE)
+    ========================== */
+        try {
+            if (typeof regions === "string") regions = JSON.parse(regions);
+            if (typeof states === "string") states = JSON.parse(states);
+        } catch (err) {
+            return res.status(400).json({
+                success: false,
+                message: "regions and states must be valid JSON arrays",
+            });
         }
 
-        if (start > end) {
-            return res
-                .status(400)
-                .json({ message: "Start date cannot be after end date" });
+        if (!Array.isArray(regions) || regions.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one region is required",
+            });
         }
 
-        // Create campaign
+        if (!Array.isArray(states) || states.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one state is required",
+            });
+        }
+
+        /* =========================
+       VALIDATE CLIENT
+    ========================== */
+        const clientOrg = await ClientAdmin.findOne({
+            organizationName: client,
+        }).select("_id");
+
+        if (!clientOrg) {
+            return res.status(404).json({
+                success: false,
+                message: `Client organization '${client}' does not exist`,
+            });
+        }
+
+        /* =========================
+       DATE VALIDATION
+    ========================== */
+        const startDate = new Date(campaignStartDate);
+        const endDate = new Date(campaignEndDate);
+
+        if (isNaN(startDate) || isNaN(endDate)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid campaign date format",
+            });
+        }
+
+        if (startDate > endDate) {
+            return res.status(400).json({
+                success: false,
+                message: "Campaign start date cannot be after end date",
+            });
+        }
+
+        /* =========================
+       UPLOAD BANNERS (IMAGES)
+    ========================== */
+        const banners = [];
+
+        if (req.files?.banners?.length) {
+            for (const file of req.files.banners) {
+                const result = await uploadToCloudinary(
+                    file.buffer,
+                    "campaigns/banners",
+                    "image"
+                );
+
+                banners.push({
+                    url: result.secure_url,
+                    publicId: result.public_id,
+                });
+            }
+        }
+
+        /* =========================
+       CREATE CAMPAIGN
+    ========================== */
         const campaign = new Campaign({
             name,
-            client, // store ONLY the org name string
+            client,
             type,
-            regions, // ARRAY
-            states, // ARRAY
+            regions,
+            states,
             createdBy: req.user.id,
-            campaignStartDate: start,
-            campaignEndDate: end,
+            campaignStartDate: startDate,
+            campaignEndDate: endDate,
+
+            banners,
+
+            termsAndConditions,
+
+            gratification: {
+                type: gratificationType || "",
+                amount: gratificationAmount || null,
+                description: gratificationDescription || "",
+                conditions: gratificationConditions || "",
+            },
         });
 
         await campaign.save();
 
-        res.status(201).json({
+        return res.status(201).json({
+            success: true,
             message: "Campaign created successfully",
             campaign,
         });
     } catch (error) {
         console.error("Add campaign error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
 };
 

@@ -139,55 +139,162 @@ export const bulkAddEmployees = async (req, res) => {
 
         const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(sheet);
+        const rows = XLSX.utils.sheet_to_json(sheet);
 
         const employeesToInsert = [];
+        const failedRows = []; // ✅ Track failed rows
 
-        for (let row of data) {
-            const { name, email, contactNo, employeeType, position, gender } =
-                row;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
 
-            // Required fields
-            if (!name || !email || !contactNo || !employeeType) continue;
-
-            // Validate employee type
-            if (!["Permanent", "Contractual"].includes(employeeType)) continue;
-
-            // Check duplicates
-            const exists = await Employee.findOne({
-                $or: [{ email }, { phone: contactNo }],
-            });
-            if (exists) continue;
-
-            // ⭐ HASH PASSWORD (phone number)
-            const hashedPassword = await bcrypt.hash(contactNo.toString(), 10);
-
-            // Create employee object
-            employeesToInsert.push({
+            const {
+                sno, // ✅ Serial number from Excel
                 name,
                 email,
-                phone: contactNo,
-                password: hashedPassword, // << HASHED PASSWORD
+                contactNo,
                 employeeType,
                 position,
                 gender,
-                isActive: true,
-                createdByAdmin: req.user.id,
+                organization, // Optional: organizationName for linking
+            } = row;
+
+            // ✅ VALIDATION - Check required fields
+            const missingFields = [];
+            if (!name) missingFields.push("name");
+            if (!email) missingFields.push("email");
+            if (!contactNo) missingFields.push("contactNo");
+            if (!employeeType) missingFields.push("employeeType");
+
+            if (missingFields.length > 0) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Missing required fields: ${missingFields.join(
+                        ", "
+                    )}`,
+                    data: row,
+                });
+                continue;
+            }
+
+            // ✅ VALIDATE EMPLOYEE TYPE
+            if (!["Permanent", "Contractual"].includes(employeeType)) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Invalid employeeType: '${employeeType}'. Must be 'Permanent' or 'Contractual'`,
+                    data: row,
+                });
+                continue;
+            }
+
+            // ✅ VALIDATE EMAIL FORMAT
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Invalid email format: ${email}`,
+                    data: row,
+                });
+                continue;
+            }
+
+            // ✅ VALIDATE CONTACT NUMBER
+            const contactRegex = /^[6-9]\d{9}$/;
+            if (!contactRegex.test(String(contactNo))) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Invalid contact number: ${contactNo}. Must be 10 digits starting with 6-9`,
+                    data: row,
+                });
+                continue;
+            }
+
+            // ✅ CHECK DUPLICATES
+            const exists = await Employee.findOne({
+                $or: [{ email }, { phone: contactNo }],
             });
+
+            if (exists) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Duplicate entry: Email '${email}' or Contact '${contactNo}' already exists`,
+                    data: row,
+                    existingEmployee: {
+                        id: exists._id,
+                        name: exists.name,
+                        email: exists.email,
+                        phone: exists.phone,
+                        employeeId: exists.employeeId,
+                    },
+                });
+                continue;
+            }
+
+            // ✅ HASH PASSWORD
+            try {
+                const hashedPassword = await bcrypt.hash(
+                    contactNo.toString(),
+                    10
+                );
+
+                // ✅ BUILD EMPLOYEE OBJECT
+                employeesToInsert.push({
+                    name,
+                    email,
+                    phone: contactNo,
+                    password: hashedPassword,
+                    employeeType,
+                    position: position || "",
+                    gender: gender || "",
+                    isActive: true,
+                    createdByAdmin: req.user.id,
+                    isFirstLogin: true,
+                });
+            } catch (err) {
+                failedRows.push({
+                    sno: sno || i + 1,
+                    rowNumber: i + 2,
+                    reason: `Error processing row: ${err.message}`,
+                    data: row,
+                });
+            }
         }
 
-        if (employeesToInsert.length === 0) {
-            return res
-                .status(400)
-                .json({ message: "No valid employees to add" });
+        // ✅ INSERT SUCCESSFUL ROWS
+        let insertedEmployees = [];
+        if (employeesToInsert.length > 0) {
+            try {
+                insertedEmployees = await Employee.insertMany(
+                    employeesToInsert
+                );
+            } catch (err) {
+                return res.status(500).json({
+                    message: "Database insertion failed",
+                    error: err.message,
+                    failedRows: failedRows,
+                });
+            }
         }
 
-        // Insert many
-        const insertedEmployees = await Employee.insertMany(employeesToInsert);
-
-        res.status(201).json({
-            message: `${insertedEmployees.length} employees added successfully`,
-            employees: insertedEmployees.map((emp) => ({
+        // ✅ COMPREHENSIVE RESPONSE
+        const response = {
+            success: true,
+            summary: {
+                totalRows: rows.length,
+                successful: insertedEmployees.length,
+                failed: failedRows.length,
+                successRate: `${(
+                    (insertedEmployees.length / rows.length) *
+                    100
+                ).toFixed(2)}%`,
+            },
+            insertedEmployees: insertedEmployees.map((emp, index) => ({
+                sno: index + 1,
+                id: emp._id,
                 name: emp.name,
                 email: emp.email,
                 phone: emp.phone,
@@ -196,10 +303,39 @@ export const bulkAddEmployees = async (req, res) => {
                 position: emp.position,
                 isActive: emp.isActive,
             })),
+            failedRows: failedRows, // ✅ Complete failed row data with S.No
+        };
+
+        // ✅ DETERMINE STATUS CODE
+        if (insertedEmployees.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No employees were added. All rows failed validation.",
+                ...response,
+            });
+        }
+
+        if (failedRows.length > 0) {
+            return res.status(207).json({
+                // 207 = Multi-Status
+                success: true,
+                message: `${insertedEmployees.length} employees added, ${failedRows.length} rows failed`,
+                ...response,
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: `All ${insertedEmployees.length} employees added successfully`,
+            ...response,
         });
     } catch (error) {
         console.error("Bulk add employees error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
 };
 

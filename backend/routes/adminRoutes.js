@@ -1,7 +1,11 @@
 import express from "express";
 import multer from "multer";
 
-import { addAdmin } from "../controllers/admin/admin.controller.js";
+import {
+    addAdmin,
+    bulkAssignEmployeeRetailerToCampaign,
+    bulkAssignEmployeeToRetailer,
+} from "../controllers/admin/admin.controller.js";
 import {
     forgotPassword,
     loginAdmin,
@@ -240,5 +244,22 @@ router.get(
 router.get("/reports/retailer/:retailerId", protect, adminGetReportsByRetailer);
 router.post("/payments/set-plan", protect, adminSetPaymentPlan);
 router.put("/payments/update", protect, adminUpdatePaymentPlan);
+
+// BULK ASSIGN
+router.post(
+    "/campaigns/bulk-assign-employee-retailer",
+    protect,
+    upload.fields([{ name: "file", maxCount: 1 }]),
+    bulkAssignEmployeeToRetailer
+);
+
+router.post(
+    "/campaigns/bulk-assign",
+    protect,
+    upload.fields([
+        { name: "file", maxCount: 1 }, // Excel / CSV file
+    ]),
+    bulkAssignEmployeeRetailerToCampaign
+);
 
 export default router;

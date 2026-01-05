@@ -407,7 +407,11 @@ export const Employee = model("Employee", employeeSchema);
 =============================== */
 const campaignSchema = new Schema(
     {
+        /* =========================
+       BASIC DETAILS
+    ========================== */
         name: { type: String, required: true, trim: true },
+
         client: { type: String, required: true, trim: true },
 
         type: {
@@ -421,6 +425,9 @@ const campaignSchema = new Schema(
             required: true,
         },
 
+        /* =========================
+       REGION SELECTION
+    ========================== */
         regions: [
             {
                 type: String,
@@ -429,6 +436,9 @@ const campaignSchema = new Schema(
             },
         ],
 
+        /* =========================
+       STATE SELECTION
+    ========================== */
         states: [
             {
                 type: String,
@@ -436,17 +446,76 @@ const campaignSchema = new Schema(
             },
         ],
 
+        /* =========================
+       CREATED BY
+    ========================== */
         createdBy: {
             type: Types.ObjectId,
             ref: "Admin",
             required: true,
         },
 
-        campaignStartDate: { type: Date, required: true },
-        campaignEndDate: { type: Date, required: true },
+        /* =========================
+       CAMPAIGN DATE WINDOW
+    ========================== */
+        campaignStartDate: {
+            type: Date,
+            required: true,
+        },
 
-        isActive: { type: Boolean, default: true },
+        campaignEndDate: {
+            type: Date,
+            required: true,
+        },
 
+        /* =========================
+       STATUS
+    ========================== */
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
+
+        /* =========================
+       🖼️ CAMPAIGN BANNERS (IMAGES)
+    ========================== */
+        banners: [
+            {
+                url: { type: String, required: true },
+                publicId: { type: String },
+                uploadedAt: { type: Date, default: Date.now },
+            },
+        ],
+
+        /* =========================
+       📜 TERMS & CONDITIONS (TEXT)
+    ========================== */
+        termsAndConditions: {
+            type: String,
+            required: true,
+        },
+
+        /* =========================
+       💰 GRATIFICATION DETAILS
+    ========================== */
+        gratification: {
+            type: {
+                type: String, // Cash | Gift | Points | Discount | Others
+            },
+            amount: {
+                type: Number,
+            },
+            description: {
+                type: String,
+            },
+            conditions: {
+                type: String,
+            },
+        },
+
+        /* =========================
+       ASSIGNED RETAILERS
+    ========================== */
         assignedRetailers: [
             {
                 retailerId: {
@@ -461,19 +530,34 @@ const campaignSchema = new Schema(
                     default: "pending",
                 },
 
-                assignedAt: { type: Date, default: Date.now },
-                updatedAt: { type: Date },
+                assignedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
 
-                startDate: { type: Date },
-                endDate: { type: Date },
+                updatedAt: {
+                    type: Date,
+                },
+
+                startDate: {
+                    type: Date,
+                },
+
+                endDate: {
+                    type: Date,
+                },
             },
         ],
 
+        /* =========================
+       ASSIGNED EMPLOYEES
+    ========================== */
         assignedEmployees: [
             {
                 employeeId: {
                     type: Types.ObjectId,
                     ref: "Employee",
+                    required: true,
                 },
 
                 status: {
@@ -482,14 +566,30 @@ const campaignSchema = new Schema(
                     default: "pending",
                 },
 
-                assignedAt: { type: Date, default: Date.now },
-                updatedAt: { type: Date },
+                assignedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
 
-                startDate: { type: Date },
-                endDate: { type: Date },
+                updatedAt: {
+                    type: Date,
+                },
+
+                startDate: {
+                    type: Date,
+                },
+
+                endDate: {
+                    type: Date,
+                },
             },
         ],
 
+        /* ==================================================
+       EMPLOYEE ↔ RETAILER MAPPING (WITHIN CAMPAIGN)
+       ✔ One employee → multiple retailers
+       ✔ One retailer → multiple employees
+    =================================================== */
         assignedEmployeeRetailers: [
             {
                 employeeId: {
@@ -497,17 +597,49 @@ const campaignSchema = new Schema(
                     ref: "Employee",
                     required: true,
                 },
+
                 retailerId: {
                     type: Types.ObjectId,
                     ref: "Retailer",
                     required: true,
                 },
-                assignedAt: { type: Date, default: Date.now },
+
+                assignedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
             },
         ],
     },
     { timestamps: true }
 );
+
+/* ---------------------------
+   ✅ PRE-DELETE HOOK: Clean up Cloudinary files
+---------------------------- */
+campaignSchema.pre("remove", async function (next) {
+    try {
+        // Delete all campaign documents from Cloudinary
+        if (this.documents && this.documents.length > 0) {
+            for (const doc of this.documents) {
+                await deleteFromCloudinary(doc.publicId, "raw");
+            }
+        }
+
+        // Delete all campaign banners from Cloudinary
+        if (this.banners && this.banners.length > 0) {
+            for (const banner of this.banners) {
+                await deleteFromCloudinary(banner.publicId, "image");
+            }
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+export const Campaign = mongoose.model("Campaign", campaignSchema);
 
 /* ===============================
    PAYMENT SCHEMA (NO CHANGES)
@@ -658,7 +790,6 @@ export const JobApplication = mongoose.model(
 export default mongoose.model("Payment", paymentSchema);
 
 export const Payment = mongoose.model("Payment", paymentSchema);
-export const Campaign = model("Campaign", campaignSchema);
 
 /* ===============================
    VISIT SCHEDULE SCHEMA (NO CHANGES)
