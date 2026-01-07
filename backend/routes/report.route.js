@@ -3,6 +3,7 @@ import express from "express";
 import multer from "multer";
 import {
     createReport,
+    createReportWithGeotags,
     deleteReport,
     getAllClientReports,
     getAllReports,
@@ -11,8 +12,8 @@ import {
     getReportsByEmployee,
     getReportsByRetailer,
     getSpecificReportsByRetailer,
+    streamReportPdf,
     updateReport,
-    streamReportPdf
 } from "../controllers/report.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -70,6 +71,19 @@ router.post(
     ]),
     createReport
 );
+
+// create with geo tags
+router.post(
+    "/create-geo",
+    protect,
+    upload.fields([
+        { name: "shopDisplayImages", maxCount: 20 },
+        { name: "billCopies", maxCount: 20 },
+        { name: "files", maxCount: 20 },
+    ]),
+    createReportWithGeotags
+);
+
 router.get("/:id/pdf", streamReportPdf);
 // Get all reports with filters (Admin view)
 router.get("/all", protect, getAllReports);

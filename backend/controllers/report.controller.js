@@ -333,6 +333,346 @@ export const createReport = async (req, res) => {
 };
 
 /* ===============================
+   CREATE REPORT WITH GEOTAGS - NEW
+=============================== */
+export const createReportWithGeotags = async (req, res) => {
+    try {
+        console.log("BODY:", req.body);
+        console.log("FILES:", req.files);
+
+        const {
+            reportType,
+            campaignId,
+            visitScheduleId,
+            typeOfVisit,
+            attendedVisit,
+            frequency,
+            dateOfSubmission,
+            remarks,
+            location,
+            stockType,
+            brand,
+            product,
+            sku,
+            productType,
+            quantity,
+        } = req.body;
+
+        const submittedBy =
+            req.body.submittedBy && typeof req.body.submittedBy === "object"
+                ? req.body.submittedBy
+                : {
+                      role: req.body["submittedBy[role]"],
+                      userId: req.body["submittedBy[userId]"],
+                  };
+
+        const retailerObj =
+            req.body.retailer && typeof req.body.retailer === "object"
+                ? req.body.retailer
+                : {
+                      retailerId: req.body["retailer[retailerId]"],
+                      outletName: req.body["retailer[outletName]"],
+                      retailerName: req.body["retailer[retailerName]"],
+                      outletCode: req.body["retailer[outletCode]"],
+                  };
+
+        let employeeObj;
+        if (req.body.employee && typeof req.body.employee === "object") {
+            employeeObj = req.body.employee;
+        } else if (req.body["employee[employeeId]"]) {
+            employeeObj = {
+                employeeId: req.body["employee[employeeId]"],
+                employeeName: req.body["employee[employeeName]"],
+                employeeCode: req.body["employee[employeeCode]"],
+            };
+        }
+
+        const reasonForNonAttendance =
+            req.body.reasonForNonAttendance &&
+            typeof req.body.reasonForNonAttendance === "object"
+                ? req.body.reasonForNonAttendance
+                : req.body["reasonForNonAttendance[reason]"]
+                ? {
+                      reason: req.body["reasonForNonAttendance[reason]"],
+                      otherReason:
+                          req.body["reasonForNonAttendance[otherReason]"],
+                  }
+                : undefined;
+
+        /* =========================
+           VALIDATION
+        ========================== */
+        if (!campaignId || !submittedBy || !retailerObj) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields",
+            });
+        }
+
+        if (attendedVisit === "yes" && !reportType) {
+            return res.status(400).json({
+                success: false,
+                message: "reportType is required for attended visits",
+            });
+        }
+
+        const campaign = await Campaign.findById(campaignId);
+        if (!campaign) {
+            return res.status(404).json({
+                success: false,
+                message: "Campaign not found",
+            });
+        }
+
+        const retailerDoc = await Retailer.findById(retailerObj.retailerId);
+        if (!retailerDoc) {
+            return res.status(404).json({
+                success: false,
+                message: "Retailer not found",
+            });
+        }
+
+        if (submittedBy.role === "Employee" && employeeObj?.employeeId) {
+            const employeeDoc = await Employee.findById(employeeObj.employeeId);
+            if (!employeeDoc) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Employee not found",
+                });
+            }
+        }
+
+        if (attendedVisit === "no") {
+            if (
+                !reasonForNonAttendance?.reason ||
+                (reasonForNonAttendance.reason === "others" &&
+                    !reasonForNonAttendance.otherReason)
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Reason for non-attendance is required",
+                });
+            }
+        }
+
+        /* =========================
+           BUILD BASE REPORT DATA
+        ========================== */
+        const baseReportData = {
+            campaignId,
+            submittedBy,
+            retailer: retailerObj,
+            employee: employeeObj || undefined,
+            visitScheduleId: visitScheduleId || undefined,
+            typeOfVisit: typeOfVisit || undefined,
+            attendedVisit: attendedVisit || undefined,
+            reasonForNonAttendance:
+                attendedVisit === "no" ? reasonForNonAttendance : undefined,
+            frequency:
+                submittedBy.role === "Retailer" ||
+                (submittedBy.role === "Employee" && attendedVisit === "yes")
+                    ? frequency
+                    : undefined,
+            dateOfSubmission: dateOfSubmission || new Date(),
+            remarks,
+            location: location || undefined,
+        };
+
+        const ReportModel = getReportModel(reportType);
+
+        let reportData = { ...baseReportData };
+
+        /* =========================
+           ADD TYPE-SPECIFIC DATA
+        ========================== */
+        if (attendedVisit === "yes" || submittedBy.role !== "Employee") {
+            if (reportType === "Stock") {
+                reportData = {
+                    ...reportData,
+                    stockType,
+                    brand,
+                    product,
+                    sku,
+                    productType,
+                    quantity,
+                };
+            }
+        }
+
+        /* =========================
+           UPLOAD FILES TO CLOUDINARY WITH GEOTAGS
+        ========================== */
+        if (req.files) {
+            // ✅ Window Display Images WITH GEOTAGS
+            if (
+                reportType === "Window Display" &&
+                req.files.shopDisplayImages
+            ) {
+                const images = Array.isArray(req.files.shopDisplayImages)
+                    ? req.files.shopDisplayImages
+                    : [req.files.shopDisplayImages];
+
+                const uploadedImages = [];
+                for (let i = 0; i < images.length; i++) {
+                    const file = images[i];
+
+                    // ✅ Get geotag metadata if available
+                    const metadataKey = `shopDisplayImageMetadata[${i}]`;
+                    let context = {};
+
+                    if (req.body[metadataKey]) {
+                        try {
+                            const geotag = JSON.parse(req.body[metadataKey]);
+                            context = {
+                                geotag_latitude: geotag.latitude.toString(),
+                                geotag_longitude: geotag.longitude.toString(),
+                                geotag_accuracy: geotag.accuracy.toString(),
+                                geotag_altitude: (
+                                    geotag.altitude || 0
+                                ).toString(),
+                                geotag_timestamp: geotag.timestamp,
+                                geotag_source: geotag.source || "app",
+                            };
+                            console.log(
+                                `✅ Geotag context for shop image ${i}:`,
+                                context
+                            );
+                        } catch (e) {
+                            console.log(
+                                `⚠️ No valid geotag metadata for shop image ${i}`
+                            );
+                        }
+                    }
+
+                    // Upload to Cloudinary with geotag context
+                    try {
+                        const result = await uploadToCloudinary(
+                            file.buffer,
+                            "reports/window-display",
+                            "image",
+                            context // ✅ Pass context with geotags
+                        );
+
+                        uploadedImages.push({
+                            url: result.secure_url,
+                            publicId: result.public_id,
+                            fileName: file.originalname,
+                            geotag: context, // ✅ Save geotag to database
+                            width: result.width,
+                            height: result.height,
+                        });
+                    } catch (err) {
+                        console.error(`❌ Shop image ${i} upload failed:`, err);
+                        return res.status(500).json({
+                            success: false,
+                            message: `Shop display image ${
+                                i + 1
+                            } upload failed`,
+                            error: err.message,
+                        });
+                    }
+                }
+                reportData.shopDisplayImages = uploadedImages;
+            }
+
+            // ✅ Stock Bill Copies
+            if (reportType === "Stock" && req.files.billCopies) {
+                const bills = Array.isArray(req.files.billCopies)
+                    ? req.files.billCopies
+                    : [req.files.billCopies];
+
+                const uploadedBills = [];
+                for (const file of bills) {
+                    try {
+                        const result = await uploadToCloudinary(
+                            file.buffer,
+                            "reports/bills",
+                            "raw" // For PDFs
+                        );
+
+                        uploadedBills.push({
+                            url: result.secure_url,
+                            publicId: result.public_id,
+                            fileName: file.originalname,
+                        });
+                    } catch (err) {
+                        return res.status(500).json({
+                            success: false,
+                            message: "Bill copy upload failed",
+                            error: err.message,
+                        });
+                    }
+                }
+                reportData.billCopies = uploadedBills;
+            }
+
+            // ✅ Other Files
+            if (reportType === "Others" && req.files.files) {
+                const otherFiles = Array.isArray(req.files.files)
+                    ? req.files.files
+                    : [req.files.files];
+
+                const uploadedFiles = [];
+                for (const file of otherFiles) {
+                    try {
+                        const result = await uploadToCloudinary(
+                            file.buffer,
+                            "reports/others",
+                            "raw"
+                        );
+
+                        uploadedFiles.push({
+                            url: result.secure_url,
+                            publicId: result.public_id,
+                            fileName: file.originalname,
+                        });
+                    } catch (err) {
+                        return res.status(500).json({
+                            success: false,
+                            message: "File upload failed",
+                            error: err.message,
+                        });
+                    }
+                }
+                reportData.files = uploadedFiles;
+            }
+        }
+
+        /* =========================
+           CREATE REPORT
+        ========================== */
+        const newReport = new ReportModel(reportData);
+        await newReport.save();
+
+        /* =========================
+           UPDATE VISIT SCHEDULE
+        ========================== */
+        if (visitScheduleId && attendedVisit === "yes") {
+            await VisitSchedule.findByIdAndUpdate(visitScheduleId, {
+                status: "Completed",
+            });
+        } else if (visitScheduleId && attendedVisit === "no") {
+            await VisitSchedule.findByIdAndUpdate(visitScheduleId, {
+                status: "Missed",
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: "Report created successfully with geotags",
+            report: newReport,
+        });
+    } catch (error) {
+        console.error("Create report with geotags error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while creating report",
+            error: error.message,
+        });
+    }
+};
+
+/* ===============================
    GET ALL REPORTS (WITH FILTERS)
 =============================== */
 export const getAllReports = async (req, res) => {
@@ -1225,8 +1565,7 @@ export const streamReportPdf = async (req, res) => {
            HELPERS
         ========================== */
         const sectionTitle = (title) => {
-            doc
-                .moveDown()
+            doc.moveDown()
                 .fontSize(14)
                 .fillColor("#E4002B")
                 .text(title)
@@ -1235,8 +1574,7 @@ export const streamReportPdf = async (req, res) => {
         };
 
         const row = (label, value) => {
-            doc
-                .fontSize(11)
+            doc.fontSize(11)
                 .text(`${label}: `, { continued: true, width: 150 })
                 .font("Helvetica-Bold")
                 .text(value || "N/A")
@@ -1255,8 +1593,7 @@ export const streamReportPdf = async (req, res) => {
         /* =========================
            TITLE
         ========================== */
-        doc
-            .fontSize(18)
+        doc.fontSize(18)
             .fillColor("#E4002B")
             .text("REPORT DETAILS", { align: "center" })
             .moveDown();
@@ -1287,10 +1624,7 @@ export const streamReportPdf = async (req, res) => {
         if (report.employee?.employeeId) {
             sectionTitle("Employee Information");
             row("Employee Name", report.employee.employeeId.name);
-            row(
-                "Employee Code",
-                report.employee.employeeId.employeeId
-            );
+            row("Employee Code", report.employee.employeeId.employeeId);
             if (report.employee.employeeId.phone) {
                 row("Contact", report.employee.employeeId.phone);
             }
@@ -1304,22 +1638,15 @@ export const streamReportPdf = async (req, res) => {
             row("Type of Visit", report.typeOfVisit);
             row(
                 "Attendance Status",
-                report.attendedVisit === "yes"
-                    ? "Attended"
-                    : "Not Attended"
+                report.attendedVisit === "yes" ? "Attended" : "Not Attended"
             );
 
             if (
                 report.attendedVisit === "no" &&
                 report.reasonForNonAttendance
             ) {
-                row(
-                    "Reason",
-                    report.reasonForNonAttendance.reason
-                );
-                if (
-                    report.reasonForNonAttendance.reason === "others"
-                ) {
+                row("Reason", report.reasonForNonAttendance.reason);
+                if (report.reasonForNonAttendance.reason === "others") {
                     row(
                         "Additional Details",
                         report.reasonForNonAttendance.otherReason
@@ -1346,11 +1673,9 @@ export const streamReportPdf = async (req, res) => {
         ========================== */
         if (report.remarks) {
             sectionTitle("Remarks");
-            doc
-                .fontSize(11)
-                .text(report.remarks, {
-                    align: "left",
-                });
+            doc.fontSize(11).text(report.remarks, {
+                align: "left",
+            });
         }
 
         /* =========================
@@ -1364,10 +1689,7 @@ export const streamReportPdf = async (req, res) => {
             sectionTitle(title);
 
             for (let i = 0; i < files.length; i++) {
-                const url =
-                    files[i].url ||
-                    files[i].secure_url ||
-                    files[i];
+                const url = files[i].url || files[i].secure_url || files[i];
 
                 if (!url) continue;
 
@@ -1381,8 +1703,7 @@ export const streamReportPdf = async (req, res) => {
                     align: "center",
                 });
 
-                doc
-                    .moveDown(0.5)
+                doc.moveDown(0.5)
                     .fontSize(10)
                     .text(`Image ${i + 1}`, {
                         align: "center",
@@ -1391,10 +1712,7 @@ export const streamReportPdf = async (req, res) => {
         };
 
         if (report.reportType === "Window Display") {
-            await renderImages(
-                "Shop Display Images",
-                report.shopDisplayImages
-            );
+            await renderImages("Shop Display Images", report.shopDisplayImages);
         }
 
         if (report.reportType === "Stock") {
