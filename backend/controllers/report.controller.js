@@ -554,6 +554,21 @@ export const createReportWithGeotags = async (req, res) => {
                             "image",
                             context
                         );
+                        // Check file buffer before upload
+                        if (!file.buffer || file.buffer.length === 0) {
+                            console.error(`❌ Empty buffer for image ${i}`);
+                            return res.status(400).json({
+                                success: false,
+                                message: `Image ${i + 1} has no data`,
+                            });
+                        }
+
+                        console.log(`📁 Processing image ${i + 1}:`, {
+                            originalname: file.originalname,
+                            mimetype: file.mimetype,
+                            size: file.size,
+                            bufferLength: file.buffer.length,
+                        });
 
                         // ✅ Verify upload success before pushing
                         if (result && result.secure_url && result.public_id) {

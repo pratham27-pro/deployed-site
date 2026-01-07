@@ -11,33 +11,61 @@ cloudinary.config({
     secure: true,
 });
 
-// Helper function to upload buffer to Cloudinary
 export const uploadToCloudinary = async (
     buffer,
     folder,
     resourceType = "image",
     context = {}
 ) => {
-    try {
-        const result = await cloudinary.uploader
-            .upload_stream(
-                {
-                    folder: folder,
-                    resource_type: resourceType,
-                    context: context, // ✅ Pass geotag context here
-                },
-                (error, result) => {
-                    if (error) throw error;
-                    return result;
-                }
-            )
-            .end(buffer);
+    return new Promise((resolve, reject) => {
+        console.log("🚀 Starting Cloudinary upload:", {
+            folder,
+            resourceType,
+            bufferSize: buffer.length,
+            contextKeys: Object.keys(context),
+        });
 
-        return result;
-    } catch (error) {
-        console.error("Cloudinary upload error:", error);
-        throw error;
-    }
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: folder,
+                resource_type: resourceType,
+                context: context,
+            },
+            (error, result) => {
+                if (error) {
+                    console.error("❌ Cloudinary upload error:", {
+                        message: error.message,
+                        http_code: error.http_code,
+                        error: error,
+                    });
+                    reject(error);
+                } else if (!result) {
+                    console.error("❌ No result returned from Cloudinary");
+                    reject(new Error("No result from Cloudinary"));
+                } else if (!result.secure_url || !result.public_id) {
+                    console.error("❌ Invalid Cloudinary result:", result);
+                    reject(new Error("Missing secure_url or public_id"));
+                } else {
+                    console.log("✅ Cloudinary upload success:", {
+                        secure_url: result.secure_url,
+                        public_id: result.public_id,
+                        width: result.width,
+                        height: result.height,
+                        format: result.format,
+                    });
+                    resolve(result);
+                }
+            }
+        );
+
+        // ✅ Handle stream errors
+        uploadStream.on("error", (streamError) => {
+            console.error("❌ Upload stream error:", streamError);
+            reject(streamError);
+        });
+
+        uploadStream.end(buffer);
+    });
 };
 
 // Helper function to delete from Cloudinary
