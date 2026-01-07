@@ -1,4 +1,5 @@
 // controllers/report.controller.js
+import PDFDocument from "pdfkit";
 import {
     OthersReport,
     Report,
@@ -11,7 +12,6 @@ import {
     deleteFromCloudinary,
     uploadToCloudinary,
 } from "../utils/cloudinary.config.js";
-import PDFDocument from "pdfkit";
 import { getResourceType } from "../utils/cloudinary.helper.js";
 
 /* ===============================
@@ -503,7 +503,7 @@ export const createReportWithGeotags = async (req, res) => {
            UPLOAD FILES TO CLOUDINARY WITH GEOTAGS
         ========================== */
         if (req.files) {
-            // ✅ Window Display Images WITH GEOTAGS
+            // ✅ Window Display Images WITH GEOTAGS - FIXED
             if (
                 reportType === "Window Display" &&
                 req.files.shopDisplayImages
@@ -513,6 +513,7 @@ export const createReportWithGeotags = async (req, res) => {
                     : [req.files.shopDisplayImages];
 
                 const uploadedImages = [];
+
                 for (let i = 0; i < images.length; i++) {
                     const file = images[i];
 
@@ -539,40 +540,63 @@ export const createReportWithGeotags = async (req, res) => {
                             );
                         } catch (e) {
                             console.log(
-                                `⚠️ No valid geotag metadata for shop image ${i}`
+                                `⚠️ Invalid geotag metadata for shop image ${i}:`,
+                                e.message
                             );
                         }
                     }
 
-                    // Upload to Cloudinary with geotag context
                     try {
+                        // ✅ Upload to Cloudinary
                         const result = await uploadToCloudinary(
                             file.buffer,
                             "reports/window-display",
                             "image",
-                            context // ✅ Pass context with geotags
+                            context
                         );
 
-                        uploadedImages.push({
-                            url: result.secure_url,
-                            publicId: result.public_id,
-                            fileName: file.originalname,
-                            geotag: context, // ✅ Save geotag to database
-                            width: result.width,
-                            height: result.height,
-                        });
-                    } catch (err) {
-                        console.error(`❌ Shop image ${i} upload failed:`, err);
+                        // ✅ Verify upload success before pushing
+                        if (result && result.secure_url && result.public_id) {
+                            console.log(
+                                `✅ Shop image ${i + 1} uploaded:`,
+                                result.secure_url
+                            );
+
+                            uploadedImages.push({
+                                url: result.secure_url,
+                                publicId: result.public_id,
+                                fileName: file.originalname,
+                                geotag: context,
+                                width: result.width,
+                                height: result.height,
+                            });
+                        } else {
+                            console.error(
+                                `❌ Invalid Cloudinary result for image ${i}:`,
+                                result
+                            );
+                            throw new Error(
+                                `Cloudinary upload failed for image ${i + 1}`
+                            );
+                        }
+                    } catch (uploadErr) {
+                        console.error(
+                            `❌ Shop image ${i + 1} upload error:`,
+                            uploadErr
+                        );
                         return res.status(500).json({
                             success: false,
                             message: `Shop display image ${
                                 i + 1
-                            } upload failed`,
-                            error: err.message,
+                            } upload failed: ${uploadErr.message}`,
                         });
                     }
                 }
+
                 reportData.shopDisplayImages = uploadedImages;
+                console.log(
+                    `✅ Processed ${uploadedImages.length} shop display images`
+                );
             }
 
             // ✅ Stock Bill Copies
