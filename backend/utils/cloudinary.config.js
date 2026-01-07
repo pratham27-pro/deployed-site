@@ -82,10 +82,9 @@ export const uploadToCloudinaryWithDetailsOverlay = async (
     const lat = geotag.latitude || 0;
     const lng = geotag.longitude || 0;
     const accuracy = geotag.accuracy || 0;
-    const altitude = geotag.altitude || 0;
     const timestamp = geotag.timestamp || new Date().toISOString();
 
-    console.log("🔍 Geotag data:", { lat, lng, accuracy, altitude, timestamp });
+    console.log("🔍 Geotag data:", { lat, lng, accuracy, timestamp });
 
     // ✅ Get place name
     let placeName = "Location Unavailable";
@@ -108,12 +107,11 @@ export const uploadToCloudinaryWithDetailsOverlay = async (
         minute: "2-digit",
     });
 
-    // ✅ Build overlay text
-    const overlayText = `📍 ${lat.toFixed(6)}, ${lng.toFixed(
-        6
-    )}\n🏪 ${placeName}\n📅 ${captureDate}`;
+    // ✅ Shorten place name if too long
+    const shortPlace =
+        placeName.length > 50 ? placeName.substring(0, 47) + "..." : placeName;
 
-    // ✅ Safe context - only add defined values
+    // ✅ Build context
     const context = {};
     if (lat !== 0) context.geotag_latitude = lat.toString();
     if (lng !== 0) context.geotag_longitude = lng.toString();
@@ -121,14 +119,102 @@ export const uploadToCloudinaryWithDetailsOverlay = async (
     context.geotag_place = placeName;
     context.geotag_timestamp = timestamp;
 
-    console.log("📤 Context for Cloudinary:", context);
-
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
                 folder,
                 resource_type: "image",
-                context, // ✅ Safe context object
+                context, // Metadata (invisible)
+                // ✅ TRANSFORMATION: Print text ON image
+                transformation: [
+                    { width: 1200, height: 1600, crop: "limit" }, // Resize if needed
+                    {
+                        // Line 1: GPS Coordinates
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 28,
+                            font_weight: "bold",
+                            text: `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+                        },
+                        gravity: "south_west",
+                        x: 20,
+                        y: 120,
+                        color: "white",
+                    },
+                    {
+                        // Background for line 1
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 28,
+                            font_weight: "bold",
+                            text: `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+                        },
+                        gravity: "south_west",
+                        x: 22,
+                        y: 122,
+                        color: "black",
+                        opacity: 0,
+                    },
+                    {
+                        // Line 2: Place Name
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 24,
+                            text: shortPlace,
+                        },
+                        gravity: "south_west",
+                        x: 20,
+                        y: 80,
+                        color: "white",
+                    },
+                    {
+                        // Background for line 2
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 24,
+                            text: shortPlace,
+                        },
+                        gravity: "south_west",
+                        x: 22,
+                        y: 82,
+                        color: "black",
+                        opacity: 0,
+                    },
+                    {
+                        // Line 3: Date & Time
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 22,
+                            text: captureDate,
+                        },
+                        gravity: "south_west",
+                        x: 20,
+                        y: 40,
+                        color: "white",
+                    },
+                    {
+                        // Background for line 3
+                        overlay: {
+                            font_family: "Arial",
+                            font_size: 22,
+                            text: captureDate,
+                        },
+                        gravity: "south_west",
+                        x: 22,
+                        y: 42,
+                        color: "black",
+                        opacity: 0,
+                    },
+                    {
+                        // Semi-transparent black background box
+                        overlay: "black",
+                        opacity: 60,
+                        width: 1200,
+                        height: 150,
+                        gravity: "south",
+                        crop: "fill",
+                    },
+                ],
             },
             (error, result) => {
                 if (error) {
@@ -138,7 +224,7 @@ export const uploadToCloudinaryWithDetailsOverlay = async (
                     reject(new Error("Invalid Cloudinary result"));
                 } else {
                     console.log(
-                        "✅ Geotagged image uploaded:",
+                        "✅ Image with overlay uploaded:",
                         result.secure_url
                     );
                     resolve(result);
