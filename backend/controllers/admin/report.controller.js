@@ -2,9 +2,8 @@
 import XLSX from "xlsx";
 import { Retailer } from "../../models/retailer.model.js";
 import { Campaign, Employee } from "../../models/user.js";
-import { Campaign, Employee, EmployeeReport } from "../../models/user.js";
 
-import { Retailer } from "../../models/retailer.model.js";
+
 
 // ====== CREATE ADMIN REPORT ======
 export const createAdminReport = async (req, res) => {
