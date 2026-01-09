@@ -2,7 +2,13 @@
 import bcrypt from "bcryptjs";
 import * as XLSX from "xlsx";
 import { Retailer } from "../../models/retailer.model.js";
-import { Admin, ClientAdmin, ClientUser } from "../../models/user.js";
+import {
+    Admin,
+    Campaign,
+    ClientAdmin,
+    ClientUser,
+    Employee,
+} from "../../models/user.js";
 // ====== ADD NEW ADMIN ======
 export const addAdmin = async (req, res) => {
     try {
