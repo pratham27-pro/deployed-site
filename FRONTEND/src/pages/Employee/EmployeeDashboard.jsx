@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import { API_URL } from "../../url/base";
 import "react-toastify/dist/ReactToastify.css";
 import {
     FaUser,
@@ -63,7 +64,7 @@ const EmployeeDashboard = () => {
                 }
 
                 const response = await fetch(
-                    "https://conceptpromotions.in/api/employee/profile",
+                    `${API_URL}/employee/profile`,
                     {
                         method: "GET",
                         headers: {
@@ -179,7 +180,7 @@ const EmployeeDashboard = () => {
                 <div className="flex justify-between items-center py-4 max-w-screen-xl mx-auto relative">
 
                     <img
-                        src="supreme.png"
+                        src="https://res.cloudinary.com/dltqp0vgg/image/upload/v1768037896/supreme_chdev9.png"
                         alt="Logo"
                         className="h-14 cursor-pointer"
                     />
